@@ -9,15 +9,16 @@ class Todo_app:
         self.root = root
         self.root.title("ToDoMate")
         self.root.geometry("900x550")
+
         self.tabs = ttk.Notebook(root)
         dashboard_tab = ttk.Frame(self.tabs)
-        todo_tab = ttk.Frame(self.tabs)
+        self.todo_tab = ttk.Frame(self.tabs)
         timer_tab = ttk.Frame(self.tabs)
 
         self.tasks = []
 
         self.tabs.add(dashboard_tab, text="Dashboard")
-        self.tabs.add(todo_tab, text="To-Do List")
+        self.tabs.add(self.todo_tab, text="To-Do List")
         self.tabs.add(timer_tab, text="Pomodoro Timer")
         self.tabs.pack(expand=True, fill="both")
 
@@ -34,11 +35,43 @@ class Todo_app:
                 ).pack()
         
         #Tasks List
+        top = ttk.LabelFrame(self.todo_tab, text="➕ Add New Task")
+        top.pack(fill="x", padx=10, pady=5)
+
+        ttk.Label(top, text="Title").grid(row=0, column=0, padx=5)
+        self.title_entry = ttk.Entry(top, width=30)
+        self.title_entry.grid(row=0, column=1, padx=5)
+
+        ttk.Label(top, text="Priority").grid(row=0, column=2, padx=5)
+        self.priority_entry = ttk.Combobox(top, 
+                                           values=['Low', 'Medium', 'High'],
+                                           state="readonly")
+        self.priority_entry.grid(row=0, column=3, padx=5)
+        self.priority_entry.current(1)
+
+        ttk.Label(top, text="Due Date").grid(row=1, column=0, padx=5)
+        self.date_entry = ttk.Entry(top, width=30)
+        self.date_entry.grid(row=1, column=1, padx=5)
+
+        self.add_bt = ttk.Button(top, text="✅Add Task", command=self.add)
+        self.add_bt.grid(row=1, column=3, padx=5)
+        
+        button_bar = ttk.Frame(self.todo_tab)
+        button_bar.pack(fill="x", padx=10, pady=5)
+
+        delete_bt = ttk.Button(button_bar, text="Delete",command=self.remove).pack(side="left", padx=10)
+        delete_all_bt = ttk.Button(button_bar, text="Delete All",command=self.clear_all).pack(side="left", padx=10)
+
+        ttk.Label(button_bar, text="Sort by:").pack(side="left")
+        self.filter_bt = ttk.Combobox(button_bar, values= ["Default", 'Date', 'Priority'],
+                                        state="readonly")
+        self.filter_bt.pack(side="left", padx=10)
+        self.filter_bt.current(0)
 
         #Pomodoro Timer
 
     def add(self):
-        pass
+        print("Add task")
     
     def remove(self):
         pass
@@ -57,6 +90,7 @@ class Todo_app:
 
     def sort(self):
         pass
+
 
 if __name__ == "__main__":
     root = tk.Tk()
