@@ -25,12 +25,12 @@ class Todo_app:
         #Dash Board
         ttk.Label(
                     dashboard_tab,
-                    text="📊 ToDoMate Dashboard",
+                    text="📊Dashboard",
                     font=("Segoe UI", 18, "bold")
                 ).pack(pady=50)
         ttk.Label(
                     dashboard_tab,
-                    text="Organise tasks • Manage priorities • Export data",
+                    text="X % completed",
                     font=("Segoe UI", 12)
                 ).pack()
         
@@ -45,7 +45,8 @@ class Todo_app:
         ttk.Label(top, text="Priority").grid(row=0, column=2, padx=5)
         self.priority_entry = ttk.Combobox(top, 
                                            values=['Low', 'Medium', 'High'],
-                                           state="readonly")
+                                           state="readonly"
+                                           )
         self.priority_entry.grid(row=0, column=3, padx=5)
         self.priority_entry.current(1)
 
@@ -63,21 +64,66 @@ class Todo_app:
         delete_all_bt = ttk.Button(button_bar, text="Delete All",command=self.clear_all).pack(side="left", padx=10)
 
         ttk.Label(button_bar, text="Sort by:").pack(side="left")
-        self.filter_bt = ttk.Combobox(button_bar, values= ["Default", 'Date', 'Priority'],
-                                        state="readonly")
+        self.filter_bt = ttk.Combobox(button_bar, values= ['Date', 'Priority'],
+                                        state="readonly"
+                                        )
         self.filter_bt.pack(side="left", padx=10)
         self.filter_bt.current(0)
 
+        table_cols = ('Name', 'Due Date', 'Priority', 'State')
+        self.table = ttk.Treeview(self.todo_tab, 
+                                  columns= table_cols,
+                                  show="headings",
+                                  height=18)
+        for column in table_cols:
+            self.table.heading(column, text=column)
+            self.table.column(column, anchor="center")
+        self.table.pack(fill="both", expand=True, padx=10)
+
+        # Colour code task based on priority
+        self.table.tag_configure("High", background="red")
+        self.table.tag_configure("Done", background="green")
+
         #Pomodoro Timer
+        tk.Label(timer_tab, text="25:00", 
+                 font=("Segoe UI", 60, "bold"),
+                 borderwidth=2, relief="solid"
+                 ).pack(pady=50, anchor="center")
+        
+        mid_frame = ttk.Frame(timer_tab)
+        mid_frame.pack(fill="both",padx=5)
+
+        preset_short = tk.Radiobutton(mid_frame, text="Short",
+                                      value="Short", indicatoron=0,
+                                      height=2, width=11,
+                                      background="light blue", 
+                                        borderwidth=2, relief="solid")
+        preset_short.grid(row=0 , column=0, padx= 90)
+
+        preset_long = tk.Radiobutton(mid_frame, text="Long",
+                                      value="Long", indicatoron=0,
+                                      background="light blue", 
+                                      height=2, width=11,
+                                        borderwidth=2, relief="solid")
+        preset_long.grid(row=0 , column=1, padx=90)
+
+        Custom = tk.Radiobutton(mid_frame, text="Custom",
+                                      value="Custom", indicatoron=0,
+                                      height=2, width=11,
+                                      background="light blue", 
+                                        borderwidth=2, relief="solid")
+        Custom.grid(row=0 , column=2, padx=90)
+
+
 
     def add(self):
         print("Add task")
     
     def remove(self):
-        pass
+        print("task removed")
 
     def clear_all(self):
-        pass
+        print("All tasks deleted")
 
     def load(self):
         pass
