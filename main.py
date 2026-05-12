@@ -9,6 +9,7 @@ class Todo_app:
         self.root = root
         self.root.title("ToDoMate")
         self.root.geometry("900x550")
+        self.root.resizable(width=False, height=False)
 
         self.tabs = ttk.Notebook(root)
         dashboard_tab = ttk.Frame(self.tabs)
@@ -33,6 +34,13 @@ class Todo_app:
                     text="X % completed",
                     font=("Segoe UI", 12)
                 ).pack()
+
+        progress = ttk.Progressbar(dashboard_tab, 
+                                    orient="horizontal", 
+                                    
+                                    length=850, 
+                                    mode='determinate'
+                                    ).pack(padx=5)
         
         #Tasks List
         top = ttk.LabelFrame(self.todo_tab, text="➕ Add New Task")
@@ -60,13 +68,16 @@ class Todo_app:
         button_bar = ttk.Frame(self.todo_tab)
         button_bar.pack(fill="x", padx=10, pady=5)
 
-        delete_bt = ttk.Button(button_bar, text="Delete",command=self.remove).pack(side="left", padx=10)
-        delete_all_bt = ttk.Button(button_bar, text="Delete All",command=self.clear_all).pack(side="left", padx=10)
+        delete_bt = ttk.Button(button_bar, text="✖️Delete",command=self.remove)
+        delete_bt.pack(side="left", padx=10)
+
+        delete_all_bt = ttk.Button(button_bar, text="⚠Delete All",command=self.clear_all)
+        delete_all_bt.pack(side="left", padx=10)
 
         ttk.Label(button_bar, text="Sort by:").pack(side="left")
         self.filter_bt = ttk.Combobox(button_bar, values= ['Date', 'Priority'],
-                                        state="readonly"
-                                        )
+                                      state="readonly"
+                                     )
         self.filter_bt.pack(side="left", padx=10)
         self.filter_bt.current(0)
 
@@ -88,40 +99,41 @@ class Todo_app:
         tk.Label(timer_tab, text="25:00", 
                  font=("Segoe UI", 60, "bold"),
                  borderwidth=2, relief="solid"
-                 ).pack(pady=50, anchor="center")
-        
-        mid_frame = tk.Frame(timer_tab)
-        mid_frame.pack(fill="both",padx=5)
+                 ).place(anchor="center", x=450, y=75)
 
-        preset_short = tk.Radiobutton(mid_frame, text="Short",
+        
+
+        preset_short = tk.Radiobutton(timer_tab, text="Short",
                                       value="Short", indicatoron=0,
                                       height=2, width=9,
                                       background="light blue", 
                                         borderwidth=2, relief="solid")
-        preset_short.grid(row=0 , column=0, sticky="w", padx= 90)
+        preset_short.place(anchor="center", x=275, y=175)
 
-        preset_long = tk.Radiobutton(mid_frame, text="Long",
+        preset_long = tk.Radiobutton(timer_tab, text="Long",
                                       value="Long", indicatoron=0,
                                       background="light blue", 
                                       height=2, width=9,
                                         borderwidth=2, relief="solid")
-        preset_long.grid(row=0 , column=1, sticky="w", padx=90)
+        preset_long.place(anchor="center", x=450, y=175)
 
-        custom = tk.Radiobutton(mid_frame, text="Custom",
+        custom = tk.Radiobutton(timer_tab, text="Custom",
                                       value="Custom", indicatoron=0,
                                       height=2, width=9,
                                       background="light blue", 
                                         borderwidth=2, relief="solid")
-        custom.grid(row=0 , column=2, sticky="w", padx=90)
+        custom.place(anchor="center", x=675, y=175)
 
-        pause_bt = ttk.Button(mid_frame, text="⏸️", command=self.pause)
-        pause_bt.grid(row=1, column=0, padx=90, pady=5)
+        pause_bt = ttk.Button(timer_tab, text="⏸️", command=self.pause)
+        pause_bt.place(anchor="center", x=450, y=275)
 
-        skip_bt = ttk.Button(mid_frame, text="⏭", command=self.skip)
-        skip_bt.grid(row=1, column=1, padx=90, pady=5)
+        skip_bt = ttk.Button(timer_tab, text="⏭", command=self.skip)
+        skip_bt.place(anchor="center", x=675, y=275)
 
-        restart_bt = ttk.Button(mid_frame, text="⟲", command=self.restart)
-        restart_bt.grid(row=1, column=2, padx=90, pady=5)
+        restart_bt = ttk.Button(timer_tab, text="⟲", command=self.restart)
+        restart_bt.place(anchor="center", x=275, y=275)
+
+        status_label = tk.Label(timer_tab, text="Status: On Break").place(anchor="center", x=450, y=375)
 
 
 
