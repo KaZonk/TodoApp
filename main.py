@@ -90,29 +90,38 @@ class Todo_app:
                  borderwidth=2, relief="solid"
                  ).pack(pady=50, anchor="center")
         
-        mid_frame = ttk.Frame(timer_tab)
+        mid_frame = tk.Frame(timer_tab)
         mid_frame.pack(fill="both",padx=5)
 
         preset_short = tk.Radiobutton(mid_frame, text="Short",
                                       value="Short", indicatoron=0,
-                                      height=2, width=11,
+                                      height=2, width=9,
                                       background="light blue", 
                                         borderwidth=2, relief="solid")
-        preset_short.grid(row=0 , column=0, padx= 90)
+        preset_short.grid(row=0 , column=0, sticky="w", padx= 90)
 
         preset_long = tk.Radiobutton(mid_frame, text="Long",
                                       value="Long", indicatoron=0,
                                       background="light blue", 
-                                      height=2, width=11,
+                                      height=2, width=9,
                                         borderwidth=2, relief="solid")
-        preset_long.grid(row=0 , column=1, padx=90)
+        preset_long.grid(row=0 , column=1, sticky="w", padx=90)
 
-        Custom = tk.Radiobutton(mid_frame, text="Custom",
+        custom = tk.Radiobutton(mid_frame, text="Custom",
                                       value="Custom", indicatoron=0,
-                                      height=2, width=11,
+                                      height=2, width=9,
                                       background="light blue", 
                                         borderwidth=2, relief="solid")
-        Custom.grid(row=0 , column=2, padx=90)
+        custom.grid(row=0 , column=2, sticky="w", padx=90)
+
+        pause_bt = ttk.Button(mid_frame, text="⏸️", command=self.pause)
+        pause_bt.grid(row=1, column=0, padx=90, pady=5)
+
+        skip_bt = ttk.Button(mid_frame, text="⏭", command=self.skip)
+        skip_bt.grid(row=1, column=1, padx=90, pady=5)
+
+        restart_bt = ttk.Button(mid_frame, text="⟲", command=self.restart)
+        restart_bt.grid(row=1, column=2, padx=90, pady=5)
 
 
 
@@ -136,6 +145,15 @@ class Todo_app:
 
     def sort(self):
         pass
+
+    def pause(self):
+        print("pause")
+
+    def skip(self):
+        print("Skipped")
+
+    def restart(self):
+        print("Restart timer")
 
 
 if __name__ == "__main__":
