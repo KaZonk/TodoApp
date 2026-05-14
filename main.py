@@ -1,6 +1,6 @@
 """Something here"""
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
+from tkinter import ttk, messagebox as mb, filedialog
 import csv
 from datetime import datetime, date
 
@@ -37,10 +37,10 @@ class Todo_app:
 
         progress = ttk.Progressbar(dashboard_tab, 
                                     orient="horizontal", 
-                                    
                                     length=850, 
                                     mode='determinate'
-                                    ).pack(padx=5)
+                                    )
+        progress.pack(padx=5)
         
         #Tasks List
         top = ttk.LabelFrame(self.todo_tab, text="➕ Add New Task")
@@ -81,7 +81,7 @@ class Todo_app:
         self.filter_bt.pack(side="left", padx=10)
         self.filter_bt.current(0)
 
-        table_cols = ('Name', 'Due Date', 'Priority', 'State')
+        table_cols = ('Title', 'Due Date', 'Priority', 'State')
         self.table = ttk.Treeview(self.todo_tab, 
                                   columns= table_cols,
                                   show="headings",
@@ -100,8 +100,6 @@ class Todo_app:
                  font=("Segoe UI", 60, "bold"),
                  borderwidth=2, relief="solid"
                  ).place(anchor="center", x=450, y=75)
-
-        
 
         preset_short = tk.Radiobutton(timer_tab, text="Short",
                                       value="Short", indicatoron=0,
@@ -135,10 +133,46 @@ class Todo_app:
 
         status_label = tk.Label(timer_tab, text="Status: On Break").place(anchor="center", x=450, y=375)
 
-
-
     def add(self):
         print("Add task")
+        title = self.title_entry.get()
+        title.strip()
+
+        due_date = self.date_entry.get()
+        due_date.strip()
+
+        priority = self.priority_entry.get()
+
+        if not title:
+            mb.showerror("Missing input", "Title required")
+            return
+        
+        if not due_date:
+            mb.showerror("Missing Input", "No Due Date")
+            return
+        
+        self.tasks.append({
+            "title":    title,
+            "due":   due_date,
+            "priority": priority,
+            "state": "❌"
+            })
+        
+        tasks = self.table.get_children()
+        for row in tasks:
+            self.table.delete(row)
+
+        items = self.tasks.copy()
+        for t in items:
+            self.table.insert(
+                "", "end",
+                values=(t["title"], t["due"], t["priority"], t["state"]),
+                tags=(t["priority"],)
+            )
+        
+        self.date_entry.delete(0, tk.END)
+        self.title_entry.delete(0, tk.END)
+
     
     def remove(self):
         print("task removed")
