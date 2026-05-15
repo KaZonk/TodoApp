@@ -23,6 +23,7 @@ class Todo_app:
         self.tabs.add(timer_tab, text="Pomodoro Timer")
         self.tabs.pack(expand=True, fill="both")
 
+
         #Dash Board
         ttk.Label(
                     dashboard_tab,
@@ -41,6 +42,7 @@ class Todo_app:
                                     mode='determinate'
                                     )
         progress.pack(padx=5)
+
         
         #Tasks List
         top = ttk.LabelFrame(self.todo_tab, text="➕ Add New Task")
@@ -62,7 +64,7 @@ class Todo_app:
         self.date_entry = ttk.Entry(top, width=30)
         self.date_entry.grid(row=1, column=1, padx=5)
 
-        self.add_bt = ttk.Button(top, text="✅Add Task", command=self.add)
+        self.add_bt = ttk.Button(top, text="➕Add Task", command=self.add)
         self.add_bt.grid(row=1, column=3, padx=5)
         
         button_bar = ttk.Frame(self.todo_tab)
@@ -81,6 +83,9 @@ class Todo_app:
         self.filter_bt.pack(side="left", padx=10)
         self.filter_bt.current(0)
 
+        mark_done_bt = ttk.Button(button_bar, text="✅Mark done", command=self.mark_done)
+        mark_done_bt.pack(side="left", padx=10)
+
         table_cols = ('Title', 'Due Date', 'Priority', 'State')
         self.table = ttk.Treeview(self.todo_tab, 
                                   columns= table_cols,
@@ -91,9 +96,12 @@ class Todo_app:
             self.table.column(column, anchor="center")
         self.table.pack(fill="both", expand=True, padx=10)
 
-        # Colour code task based on priority
+        # Colour code task 
         self.table.tag_configure("High", background="red")
-        self.table.tag_configure("Done", background="green")
+        self.table.tag_configure("Complete", background="green")
+
+
+        
 
         #Pomodoro Timer
         tk.Label(timer_tab, text="25:00", 
@@ -133,6 +141,21 @@ class Todo_app:
 
         status_label = tk.Label(timer_tab, text="Status: On Break").place(anchor="center", x=450, y=375)
 
+    def refresh(self):
+        """This function clear all the childrens in the 
+        tree(table) then replaced them with the thing in the list"""
+        tasks = self.table.get_children()
+        for row in tasks:
+            self.table.delete(row)
+
+        items = self.tasks.copy()
+        for t in items:
+            self.table.insert(
+                "", "end",
+                values=(t["title"], t["due"], t["priority"], t["state"]),
+                tags=(t["priority"],)
+            )
+
     def add(self):
         print("Add task")
         title = self.title_entry.get()
@@ -158,20 +181,23 @@ class Todo_app:
             "state": "❌"
             })
         
-        tasks = self.table.get_children()
-        for row in tasks:
-            self.table.delete(row)
-
-        items = self.tasks.copy()
-        for t in items:
-            self.table.insert(
-                "", "end",
-                values=(t["title"], t["due"], t["priority"], t["state"]),
-                tags=(t["priority"],)
-            )
+        self.refresh()
         
         self.date_entry.delete(0, tk.END)
         self.title_entry.delete(0, tk.END)
+
+    def mark_done(self):
+        """This function that the ID of the selected
+        children in the table, then check if the title matches
+        If it does, then change the task state to done"""
+        
+        for item in self.table.selection():
+            title = self.table.item(item, "values")[0]
+            for task in self.tasks:
+                if task["title"] == title:
+                    task["state"] = "✅"
+        self.refresh()
+
 
     
     def remove(self):
