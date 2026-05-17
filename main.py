@@ -17,6 +17,7 @@ class Todo_app:
         timer_tab = ttk.Frame(self.tabs)
 
         self.tasks = []
+        self.tasks_counter = 0
 
         self.tabs.add(dashboard_tab, text="Dashboard")
         self.tabs.add(self.todo_tab, text="To-Do List")
@@ -90,7 +91,8 @@ class Todo_app:
             self.table.heading(column, text=column)
             self.table.column(column, anchor="center")
         self.table.pack(fill="both", expand=True, padx=10)
-
+        
+        self.table.bind("<Double-1>", self.mark_done)
         # Colour code task based on priority
         self.table.tag_configure("High", background="red")
         self.table.tag_configure("Done", background="green")
@@ -147,11 +149,11 @@ class Todo_app:
             )
         print("Refreshed")
 
-
-    
-
     def add(self):
-        print("Add task")
+        """The function get the title an due date
+        then validate the data, added the new task to the 
+        list above and refresh it"""
+       
         title = self.title_entry.get()
         title.strip()
 
@@ -169,24 +171,34 @@ class Todo_app:
             return
         
         self.tasks.append({
+            "ID_no": self.tasks_counter,
             "title":    title,
             "due":   due_date,
             "priority": priority,
             "state": "☐"
             })
+        
+        self.tasks_counter += 1
+        
         self.refresh()
-        
-        self.table.bind("<Double-1>", self.mark_done)
-        
         self.date_entry.delete(0, tk.END)
-        self.title_entry.delete(0, tk.END)
+        self.title_entry.delete(0, tk.END) 
+        print("Add task")
 
     
     def remove(self):
         print("task removed")
 
     def clear_all(self):
-        print("All tasks deleted")
+
+        if mb.askyesno("Warning!", "Are you sure you want to delete all tasks?"):
+            self.tasks.clear
+            self.refresh()
+            print("All tasks deleted")
+        else:
+            return
+
+        
 
     def load(self):
         pass
@@ -194,12 +206,26 @@ class Todo_app:
     def export(self):
         pass
 
-    def search(self):
-        pass
-
     def sort(self):
         pass
 
+    def mark_done(self, event):
+        """This function that the ID of the selected
+        children in the table, then check if the title matches
+        If it does, then change the task state to done.
+        If the task was already marked done, then this undo it"""
+        
+        for item in self.table.selection():
+            ID_no = self.table.item(item, "values")[0]
+            for task in self.tasks:
+                if task["title"] == ID_no and task["state"] == "☐":
+                    task["state"] = "✅"
+                elif task["title"] == ID_no and task["state"] == "✅":
+                    task["state"] = "☐"
+
+        self.refresh()    
+        print("Marked done")
+        
     def pause(self):
         print("pause")
 
@@ -208,20 +234,6 @@ class Todo_app:
 
     def restart(self):
         print("Restart timer")
-
-    def mark_done(self, event):
-        """This function that the ID of the selected
-        children in the table, then check if the title matches
-        If it does, then change the task state to done"""
-        
-        for item in self.table.selection():
-            title = self.table.item(item, "values")[0]
-            for task in self.tasks:
-                if task["title"] == title and task["state"] == "☐":
-                    task["state"] = "✅"
-                elif task["state"] == "✅":
-                    task["state"] = "☐"
-        self.refresh()
 
 
 if __name__ == "__main__":
