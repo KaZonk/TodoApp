@@ -133,6 +133,23 @@ class Todo_app:
 
         status_label = tk.Label(timer_tab, text="Status: On Break").place(anchor="center", x=450, y=375)
 
+    def refresh(self):
+        tasks = self.table.get_children()
+        for row in tasks:
+            self.table.delete(row)
+
+        items = self.tasks.copy()
+        for t in items:
+            self.table.insert(
+                "", "end",
+                values=(t["title"], t["due"], t["priority"], t["state"]),
+                tags=(t["priority"],)
+            )
+        print("Refreshed")
+
+
+    
+
     def add(self):
         print("Add task")
         title = self.title_entry.get()
@@ -155,20 +172,11 @@ class Todo_app:
             "title":    title,
             "due":   due_date,
             "priority": priority,
-            "state": "❌"
+            "state": "☐"
             })
+        self.refresh()
         
-        tasks = self.table.get_children()
-        for row in tasks:
-            self.table.delete(row)
-
-        items = self.tasks.copy()
-        for t in items:
-            self.table.insert(
-                "", "end",
-                values=(t["title"], t["due"], t["priority"], t["state"]),
-                tags=(t["priority"],)
-            )
+        self.table.bind("<Double-1>", self.mark_done)
         
         self.date_entry.delete(0, tk.END)
         self.title_entry.delete(0, tk.END)
@@ -200,6 +208,20 @@ class Todo_app:
 
     def restart(self):
         print("Restart timer")
+
+    def mark_done(self, event):
+        """This function that the ID of the selected
+        children in the table, then check if the title matches
+        If it does, then change the task state to done"""
+        
+        for item in self.table.selection():
+            title = self.table.item(item, "values")[0]
+            for task in self.tasks:
+                if task["title"] == title and task["state"] == "☐":
+                    task["state"] = "✅"
+                elif task["state"] == "✅":
+                    task["state"] = "☐"
+        self.refresh()
 
 
 if __name__ == "__main__":
