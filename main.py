@@ -89,8 +89,8 @@ class Todo_app:
         for column in table_cols:
             self.table.heading(column, text=column)
             self.table.column(column, anchor="center")
+            
         self.table.pack(fill="both", expand=True, padx=10)
-        
         self.table.bind("<Double-1>", self.mark_done)
         # Colour code task based on priority
         self.table.tag_configure("High", background="red")
@@ -139,13 +139,15 @@ class Todo_app:
         for row in tasks:
             self.table.delete(row)
 
-        items = self.tasks.copy()
-        for t in items:
-            self.table.insert(
+        for i in range(len(self.tasks)):
+            t = self.tasks[i]
+            row_id = self.table.insert(
                 "", "end",
                 values=(t["title"], t["due"], t["priority"], t["state"]),
-                tags=(t["priority"])
+                tags=(t["priority"] if t["state"] == "☐" else "Done")
             )
+            self.tasks[i]["id"] = row_id
+
         print("Refreshed")
 
     def add(self):
@@ -206,15 +208,18 @@ class Todo_app:
         pass
 
     def mark_done(self, event):
-        """This function that the ID of the selected
-        children in the table, then check if the title matches
-        If it does, then change the task state to done.
-        If the task was already marked done, then this undo it"""
+        """This function get the ID of the selected
+        children in the table. Then  check if
+        the ID matches before replacing the state"""
         
-        for ITEM_ID in self.table.selection():
-            for task in self.table:
-                if ITEM_ID == self.table:
-                    pass
+        for item in self.table.selection():
+            for task in self.tasks:
+                if task.get("id") == item:
+                    if task["state"] == "☐":
+                        task["state"] = "✅"
+                    else:
+                        task["state"] = "☐"
+
 
         self.refresh()    
         print("Marked done")
