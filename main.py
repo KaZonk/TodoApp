@@ -89,12 +89,12 @@ class Todo_app:
         for column in table_cols:
             self.table.heading(column, text=column)
             self.table.column(column, anchor="center")
-            
+
         self.table.pack(fill="both", expand=True, padx=10)
         self.table.bind("<Double-1>", self.mark_done)
         # Colour code task based on priority
         self.table.tag_configure("High", background="red")
-        self.table.tag_configure("Done", background="green")
+        self.table.tag_configure("Done", background="#94C748")
 
         #Pomodoro Timer
         tk.Label(timer_tab, text="25:00", 
@@ -185,18 +185,26 @@ class Todo_app:
 
     
     def remove(self):
-        print("task removed")
+        """This method get the ID from the selected children
+        in the table. Then it compare the ID to tasks
+        dictionary and remove matches task"""
+        for item in self.table.selection():
+            for task in self.tasks:
+                if task.get("id") == item:
+                    self.tasks.remove(task)
+        self.refresh()
+
 
     def clear_all(self):
-
-        if mb.askyesno("Warning!", "Are you sure you want to delete all tasks?"):
-            self.tasks.clear
+        """The function ask a yes no messagebox and delete 
+        all the entries in the tasks dictionary"""
+        if mb.askyesno("Warning, this action cannot be undo!",
+                        "Are you sure you want to DELETE ALL existing tasks?"):
+            self.tasks.clear()
             self.refresh()
             print("All tasks deleted")
         else:
             return
-
-        
 
     def load(self):
         pass
