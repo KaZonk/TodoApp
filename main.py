@@ -17,7 +17,6 @@ class Todo_app:
         timer_tab = ttk.Frame(self.tabs)
 
         self.tasks = []
-        self.tasks_counter = 0
 
         self.tabs.add(dashboard_tab, text="Dashboard")
         self.tabs.add(self.todo_tab, text="To-Do List")
@@ -145,7 +144,7 @@ class Todo_app:
             self.table.insert(
                 "", "end",
                 values=(t["title"], t["due"], t["priority"], t["state"]),
-                tags=(t["priority"],)
+                tags=(t["priority"])
             )
         print("Refreshed")
 
@@ -171,14 +170,11 @@ class Todo_app:
             return
         
         self.tasks.append({
-            "ID_no": self.tasks_counter,
             "title":    title,
             "due":   due_date,
             "priority": priority,
             "state": "☐"
             })
-        
-        self.tasks_counter += 1
         
         self.refresh()
         self.date_entry.delete(0, tk.END)
@@ -215,13 +211,10 @@ class Todo_app:
         If it does, then change the task state to done.
         If the task was already marked done, then this undo it"""
         
-        for item in self.table.selection():
-            ID_no = self.table.item(item, "values")[0]
-            for task in self.tasks:
-                if task["title"] == ID_no and task["state"] == "☐":
-                    task["state"] = "✅"
-                elif task["title"] == ID_no and task["state"] == "✅":
-                    task["state"] = "☐"
+        for ITEM_ID in self.table.selection():
+            for task in self.table:
+                if ITEM_ID == self.table:
+                    pass
 
         self.refresh()    
         print("Marked done")
