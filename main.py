@@ -68,10 +68,14 @@ class Todo_app:
         button_bar = ttk.Frame(self.todo_tab)
         button_bar.pack(fill="x", padx=10, pady=5)
 
-        delete_bt = ttk.Button(button_bar, text="✖️Delete",command=self.remove)
+        delete_bt = ttk.Button(button_bar, text="✖️Delete"
+                               ,command=self.remove
+                               )
         delete_bt.pack(side="left", padx=10)
 
-        delete_all_bt = ttk.Button(button_bar, text="⚠Delete All",command=self.clear_all)
+        delete_all_bt = ttk.Button(button_bar, text="⚠Delete All",
+                                   command=self.clear_all
+                                   )
         delete_all_bt.pack(side="left", padx=10)
 
         ttk.Label(button_bar, text="Sort by:").pack(side="left")
@@ -132,12 +136,16 @@ class Todo_app:
         restart_bt = ttk.Button(timer_tab, text="⟲", command=self.restart)
         restart_bt.place(anchor="center", x=275, y=275)
 
-        status_label = tk.Label(timer_tab, text="Status: On Break").place(anchor="center", x=450, y=375)
+        status_label = tk.Label(timer_tab, text="Status: On Break")
+        status_label.place(anchor="center", x=450, y=375)
 
     def refresh(self):
-        PATH = "todo_file.csv.txt"
-        tasks = self.table.get_children()
-        for row in tasks:
+
+        #PATH = "todo_file.csv"
+        #with open(PATH, "w", newline='') as f:
+        rows = self.table.get_children()
+        for row in rows:
+            print(row)
             self.table.delete(row)
 
         for i in range(len(self.tasks)):
@@ -152,7 +160,7 @@ class Todo_app:
         print("Refreshed")
 
     def add(self):
-        """The function get the title an due date
+        """The method get the title an due date
         then validate the data, added the new task to the 
         list above and refresh it"""
        
@@ -182,7 +190,6 @@ class Todo_app:
         self.refresh()
         self.date_entry.delete(0, tk.END)
         self.title_entry.delete(0, tk.END) 
-        print("Add task")
 
     
     def remove(self):
