@@ -1,2 +1,0 @@
-Title,Due Date, Priority, State
-Get the Milk, 12-03-26, High,❌

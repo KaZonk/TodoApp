@@ -135,6 +135,7 @@ class Todo_app:
         status_label = tk.Label(timer_tab, text="Status: On Break").place(anchor="center", x=450, y=375)
 
     def refresh(self):
+        PATH = "todo_file.csv.txt"
         tasks = self.table.get_children()
         for row in tasks:
             self.table.delete(row)
