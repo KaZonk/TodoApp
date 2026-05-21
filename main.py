@@ -196,7 +196,7 @@ class Todo_app:
 
 
     def clear_all(self):
-        """The function ask a yes no messagebox and delete 
+        """The Method ask a confirmation before deleting
         all the entries in the tasks dictionary"""
         if mb.askyesno("Warning, this action cannot be undo!",
                         "Are you sure you want to DELETE ALL existing tasks?"):
@@ -216,18 +216,22 @@ class Todo_app:
         pass
 
     def mark_done(self, event):
-        """This function get the ID of the selected
-        children in the table. Then  check if
-        the ID matches before replacing the state"""
+        """This method get the ID. Then check for any selection
+        outside the tree's index. Finally, it checks through
+        the existing task for ID and replace the state"""
+        try:
+            item = self.table.selection()[0]
+
+        except IndexError:
+            return
         
-        for item in self.table.selection():
+        else:
             for task in self.tasks:
                 if task.get("id") == item:
                     if task["state"] == "☐":
-                        task["state"] = "✅"
+                            task["state"] = "✅"
                     else:
                         task["state"] = "☐"
-
 
         self.refresh()    
         print("Marked done")
