@@ -17,6 +17,7 @@ class Todo_app:
         timer_tab = ttk.Frame(self.tabs)
 
         self.tasks = []
+        self.PATH = "todo_file.csv"
 
         self.tabs.add(dashboard_tab, text="Dashboard")
         self.tabs.add(self.todo_tab, text="To-Do List")
@@ -152,7 +153,6 @@ class Todo_app:
     def refresh(self):
         rows = self.table.get_children()
         for row in rows:
-            print(row)
             self.table.delete(row)
 
         for i in range(len(self.tasks)):
@@ -163,6 +163,15 @@ class Todo_app:
                 tags=(t["priority"] if t["state"] == "☐" else "Done")
             )
             self.tasks[i]["id"] = row_id
+
+        fieldnames = ('due', 'title', 'id', 'priority', 'state')
+        with open(self.PATH, "w", newline='', encoding='utf-8') as f:
+            csv_writer = csv.writer(f)
+            csv_writer.writerow(fieldnames)
+            for u in self.tasks:
+                val = (u['due'], u['title'], u['id'], u['priority'], u['state'])
+                print(val)
+                csv_writer.writerow(val)
 
         print("Refreshed")
 
