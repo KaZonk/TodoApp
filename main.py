@@ -77,13 +77,22 @@ class Todo_app:
                                    command=self.clear_all
                                    )
         delete_all_bt.pack(side="left", padx=10)
-
+        
+        sort_cat = ['Date', 'Priority', 'Completed', 'Incomplete', 'Overdue']
         ttk.Label(button_bar, text="Sort by:").pack(side="left")
-        self.filter_bt = ttk.Combobox(button_bar, values= ['Date', 'Priority'],
+        self.filter_bt = ttk.Combobox(button_bar, values=sort_cat,
                                       state="readonly"
                                      )
         self.filter_bt.pack(side="left", padx=10)
         self.filter_bt.current(0)
+
+        load_bt = ttk.Button(button_bar, text="Load📥",
+                            command=self.load
+                            ).pack(side="left", padx=10)
+            
+        export_bt = ttk.Button(button_bar, text="Export📤", 
+                                command=self.export
+                                ).pack(side="left", padx=10)
 
         table_cols = ('Title', 'Due Date', 'Priority', 'State')
         self.table = ttk.Treeview(self.todo_tab, 
@@ -97,7 +106,8 @@ class Todo_app:
         self.table.pack(fill="both", expand=True, padx=10)
         self.table.bind("<Double-1>", self.mark_done)
         # Colour code task based on priority
-        self.table.tag_configure("High", background="red")
+        self.table.tag_configure("Medium", background="yellow")
+        self.table.tag_configure("High", background="orange")
         self.table.tag_configure("Done", background="#94C748")
 
         #Pomodoro Timer
@@ -140,9 +150,6 @@ class Todo_app:
         status_label.place(anchor="center", x=450, y=375)
 
     def refresh(self):
-
-        #PATH = "todo_file.csv"
-        #with open(PATH, "w", newline='') as f:
         rows = self.table.get_children()
         for row in rows:
             print(row)
@@ -231,6 +238,7 @@ class Todo_app:
             item = self.table.selection()[0]
 
         except IndexError:
+            # prevent program from returning data of label column
             return
         
         else:
