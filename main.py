@@ -24,6 +24,9 @@ class Todo_app:
         self.tabs.add(timer_tab, text="Pomodoro Timer")
         self.tabs.pack(expand=True, fill="both")
 
+        self.style = ttk.Style()
+        self.style.theme_use('clam')
+
         #Dash Board
         ttk.Label(
                     dashboard_tab,
@@ -54,10 +57,14 @@ class Todo_app:
         ttk.Label(top, text="Priority").grid(row=0, column=2, padx=5)
         self.priority_entry = ttk.Combobox(top, 
                                            values=['Low', 'Medium', 'High'],
-                                           state="readonly"
+                                           state='readonly',
+                                           style='TCombobox'
                                            )
         self.priority_entry.grid(row=0, column=3, padx=5)
-        self.priority_entry.current(1)
+        self.priority_entry.current(0)
+        self.priority_entry.bind("<<ComboboxSelected>>", self.combo_box_colour)
+        style_name_1 = f"Combo1_{id(self.priority_entry)}.TCombobox"
+        self.priority_entry.configure(style=style_name_1)
 
         ttk.Label(top, text="Due Date").grid(row=1, column=0, padx=5)
         self.date_entry = ttk.Entry(top, width=30)
@@ -82,16 +89,16 @@ class Todo_app:
         sort_cat = ['Date', 'Priority', 'Completed', 'Incomplete', 'Overdue']
         ttk.Label(button_bar, text="Sort by:").pack(side="left")
         self.filter_bt = ttk.Combobox(button_bar, values=sort_cat,
-                                      state="readonly"
+                                      state="readonly",
                                      )
         self.filter_bt.pack(side="left", padx=10)
         self.filter_bt.current(0)
 
-        load_bt = ttk.Button(button_bar, text="Load📥",
+        load_bt = ttk.Button(button_bar, text="Import⬇️",
                             command=self.load
                             ).pack(side="left", padx=10)
             
-        export_bt = ttk.Button(button_bar, text="Export📤", 
+        export_bt = ttk.Button(button_bar, text="Export⬆️", 
                                 command=self.export
                                 ).pack(side="left", padx=10)
 
@@ -229,6 +236,20 @@ class Todo_app:
             print("All tasks deleted")
         else:
             return
+        
+    def combo_box_colour(self, choice):
+        current = self.priority_entry.get()
+        style_name = self.priority_entry.cget("style")
+        if current == "High":
+            bg_color = "orange"
+        elif current == "Medium":
+            bg_color = "yellow"
+        else:
+            bg_color = "white"
+        
+        self.style.map(style_name, 
+                    fieldbackground=[('readonly', bg_color)],
+                    background=[('readonly', bg_color)])
 
     def load(self):
         pass
