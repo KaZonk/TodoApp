@@ -46,7 +46,7 @@ class Todo_app:
                                     )
         progress.pack(padx=5)
         
-        #Tasks List
+        #Tasks Manager
         top = ttk.LabelFrame(self.todo_tab, text="➕ Add New Task")
         top.pack(fill="x", padx=10, pady=5)
 
@@ -58,11 +58,10 @@ class Todo_app:
         self.priority_entry = ttk.Combobox(top, 
                                            values=['Low', 'Medium', 'High'],
                                            state='readonly',
-                                           style='TCombobox'
                                            )
         self.priority_entry.grid(row=0, column=3, padx=5)
         self.priority_entry.current(0)
-        self.priority_entry.bind("<<ComboboxSelected>>", self.combo_box_colour)
+        self.priority_entry.bind("<<ComboboxSelected>>", self.combo_colour)
         style_name_1 = f"Combo1_{id(self.priority_entry)}.TCombobox"
         self.priority_entry.configure(style=style_name_1)
 
@@ -237,9 +236,10 @@ class Todo_app:
         else:
             return
         
-    def combo_box_colour(self, choice):
-        current = self.priority_entry.get()
-        style_name = self.priority_entry.cget("style")
+    def combo_colour(self, event):
+        widget = event.widget
+        current = widget.get()
+        style_name = widget.cget("style")
         if current == "High":
             bg_color = "orange"
         elif current == "Medium":
