@@ -256,11 +256,13 @@ class Todo_app:
     def load(self, Path=None):
         """This method have the path as none type for default 
         to let the method continue if no path was provided. It then try to open
-        the path and take in the information from the provided file"""
+        the path and take in the information from the provided file.
+        If there's a an error with a file, it is shown in message box"""
         if Path is None:
-            Path = filedialog.askopenfilename( filetypes= (("text files","*.csv"),
-                                                ("all files","*.*")))
-            # if no file given: return
+            Path = filedialog.askopenfilename( filetypes= [("CSV file","*.csv")]
+                                                )
+            if not Path:
+                return
 
         exist_id = {task.get('id') for task in self.tasks}
         try:
@@ -277,8 +279,10 @@ class Todo_app:
                                         "state": line['state']
                                         })
                 self.refresh()
-        except (TypeError, FileNotFoundError) as e:
-            print(f"Error: Could not open file '{Path}'. ({e})")
+        except (TypeError, FileNotFoundError, KeyError) as e:
+            mb.showerror("Error", 
+                         f"Error: Could not open file '{Path}'. ({e})"
+            )
             return
             
 
