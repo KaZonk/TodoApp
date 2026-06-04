@@ -252,10 +252,31 @@ class Todo_app:
                     background=[('readonly', bg_color)])
 
     def load(self):
-        pass
+
+        with open(self.PATH, mode = "r", encoding='utf-8') as f:
+            csv_writer = csv.DictReader(f)
+            for line in csv_writer:
+                title = line['title']
+                due_date = line['due']
+                priority = line['priority']
+                state = line['state']
+                task_id = line['id']
+                for task in self.tasks:
+                    if task.get("id") != task_id:
+                        self.tasks.append({
+                        "title":    title,
+                        "due":   due_date,
+                        "priority": priority,
+                        "state": "☐",
+                        "id": task_id
+                        })
+                
+        self.refresh()
+            
 
     def export(self):
-        pass
+        for stuff in self.tasks:
+            print(stuff)
 
     def sort(self):
         pass
