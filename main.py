@@ -156,6 +156,8 @@ class Todo_app:
         status_label = tk.Label(timer_tab, text="Status: On Break")
         status_label.place(anchor="center", x=450, y=375)
 
+        self.load(self.PATH)
+
     def refresh(self):
 
         rows = self.table.get_children()
@@ -251,22 +253,33 @@ class Todo_app:
                     fieldbackground=[('readonly', bg_color)],
                     background=[('readonly', bg_color)])
 
-    def load(self):   
+    def load(self, Path=None):
+        """This method have the path as none type for default 
+        to let the method continue if no path was provided. It then try to open
+        the path and take in the information from the provided file"""
+        if Path is None:
+            Path = filedialog.askopenfilename( filetypes= (("text files","*.csv"),
+                                                ("all files","*.*")))
+            # if no file given: return
+
         exist_id = {task.get('id') for task in self.tasks}
-        with open(self.PATH, mode = "r", encoding='utf-8') as f:
-            csv_writer = csv.DictReader(f)
-            for line in csv_writer:
-                task_id = line['id']
-                if line['id'] not in exist_id:
-                    self.tasks.append({
-                                    "title":  line['title'],
-                                    "due":   line['due'],
-                                    "id":     task_id,
-                                    "priority": line['priority'],
-                                    "state": line['state']
-                                    })
-                
-        self.refresh()
+        try:
+            with open(Path, mode = "r", encoding='utf-8') as f:
+                csv_writer = csv.DictReader(f)
+                for line in csv_writer:
+                    task_id = line['id']
+                    if line['id'] not in exist_id:
+                        self.tasks.append({
+                                        "title":  line['title'],
+                                        "due":   line['due'],
+                                        "id":     task_id,
+                                        "priority": line['priority'],
+                                        "state": line['state']
+                                        })
+                self.refresh()
+        except (TypeError, FileNotFoundError) as e:
+            print(f"Error: Could not open file '{Path}'. ({e})")
+            return
             
 
     def export(self):
@@ -312,3 +325,19 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = Todo_app(root)
     root.mainloop()
+
+
+    """
+        with open(self.PATH, mode = "r", encoding='utf-8') as f:
+            csv_writer = csv.DictReader(f)
+            for line in csv_writer:
+                task_id = line['id']
+                if line['id'] not in exist_id:
+                    self.tasks.append({
+                                    "title":  line['title'],
+                                    "due":   line['due'],
+                                    "id":     task_id,
+                                    "priority": line['priority'],
+                                    "state": line['state']
+                                    })
+         """       
