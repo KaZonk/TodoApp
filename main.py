@@ -157,10 +157,10 @@ class Todo_app:
         status_label.place(anchor="center", x=450, y=375)
 
     def refresh(self):
+
         rows = self.table.get_children()
         for row in rows:
             self.table.delete(row)
-
         for i in range(len(self.tasks)):
             t = self.tasks[i]
             row_id = self.table.insert(
@@ -251,25 +251,20 @@ class Todo_app:
                     fieldbackground=[('readonly', bg_color)],
                     background=[('readonly', bg_color)])
 
-    def load(self):
-
+    def load(self):   
+        exist_id = {task.get('id') for task in self.tasks}
         with open(self.PATH, mode = "r", encoding='utf-8') as f:
             csv_writer = csv.DictReader(f)
             for line in csv_writer:
-                title = line['title']
-                due_date = line['due']
-                priority = line['priority']
-                state = line['state']
                 task_id = line['id']
-                for task in self.tasks:
-                    if task.get("id") != task_id:
-                        self.tasks.append({
-                        "title":    title,
-                        "due":   due_date,
-                        "priority": priority,
-                        "state": "☐",
-                        "id": task_id
-                        })
+                if line['id'] not in exist_id:
+                    self.tasks.append({
+                                    "title":  line['title'],
+                                    "due":   line['due'],
+                                    "id":     task_id,
+                                    "priority": line['priority'],
+                                    "state": line['state']
+                                    })
                 
         self.refresh()
             
