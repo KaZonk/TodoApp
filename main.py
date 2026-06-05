@@ -177,7 +177,9 @@ class Todo_app:
             csv_writer = csv.writer(f)
             csv_writer.writerow(fieldnames)
             for u in self.tasks:
-                val = (u['due'], u['title'], u['id'], u['priority'], u['state'])
+                val = (u['due'], u['title'], u['id'], u['priority'], 
+                       u['state']
+                       )
                 print(val)
                 csv_writer.writerow(val)
 
@@ -259,8 +261,8 @@ class Todo_app:
         the path and take in the information from the provided file.
         If there's a an error with a file, it is shown in message box"""
         if Path is None:
-            Path = filedialog.askopenfilename( filetypes= [("CSV file","*.csv")]
-                                                )
+            Path = filedialog.askopenfilename(filetypes=[("CSV file","*.csv")]
+                                             )
             if not Path:
                 return
 
@@ -282,13 +284,28 @@ class Todo_app:
         except (TypeError, FileNotFoundError, KeyError) as e:
             mb.showerror("Error", 
                          f"Error: Could not open file '{Path}'. ({e})"
-            )
+                        )
             return
             
 
     def export(self):
-        for stuff in self.tasks:
-            print(stuff)
+        """This method save a path to user choosing and write
+        that like a csv file"""
+        new_path = filedialog.asksaveasfilename(filetypes=[("CSV file","*.csv")])
+
+        if not new_path:
+            return
+
+        else:
+            fieldnames = ('due', 'title', 'id', 'priority', 'state')
+            with open(new_path, "w", newline='', encoding='utf-8') as f:
+                csv_writer = csv.writer(f)
+                csv_writer.writerow(fieldnames)
+                for u in self.tasks:
+                    val = (u['due'], u['title'], u['id'], u['priority'], 
+                        u['state']
+                        )
+                    csv_writer.writerow(val)
 
     def sort(self):
         pass
@@ -331,17 +348,4 @@ if __name__ == "__main__":
     root.mainloop()
 
 
-    """
-        with open(self.PATH, mode = "r", encoding='utf-8') as f:
-            csv_writer = csv.DictReader(f)
-            for line in csv_writer:
-                task_id = line['id']
-                if line['id'] not in exist_id:
-                    self.tasks.append({
-                                    "title":  line['title'],
-                                    "due":   line['due'],
-                                    "id":     task_id,
-                                    "priority": line['priority'],
-                                    "state": line['state']
-                                    })
-         """       
+
