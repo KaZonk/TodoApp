@@ -12,39 +12,22 @@ class Todo_app:
         self.root.resizable(width=False, height=False)
 
         self.tabs = ttk.Notebook(root)
-        dashboard_tab = ttk.Frame(self.tabs)
+        self.dashboard_tab = ttk.Frame(self.tabs)
         self.todo_tab = ttk.Frame(self.tabs)
-        timer_tab = ttk.Frame(self.tabs)
+        self.timer_tab = ttk.Frame(self.tabs)
 
         self.tasks = []
         self.PATH = "todo_file.csv"
 
-        self.tabs.add(dashboard_tab, text="Dashboard")
+        self.tabs.add(self.dashboard_tab, text="Dashboard")
         self.tabs.add(self.todo_tab, text="To-Do List")
-        self.tabs.add(timer_tab, text="Pomodoro Timer")
+        self.tabs.add(self.timer_tab, text="Pomodoro Timer")
         self.tabs.pack(expand=True, fill="both")
 
         self.style = ttk.Style()
         self.style.theme_use('clam')
 
-        #Dash Board
-        ttk.Label(
-                    dashboard_tab,
-                    text="📊Dashboard",
-                    font=("Segoe UI", 18, "bold")
-                ).pack(pady=50)
-        ttk.Label(
-                    dashboard_tab,
-                    text="X % completed",
-                    font=("Segoe UI", 12)
-                ).pack()
-
-        progress = ttk.Progressbar(dashboard_tab, 
-                                    orient="horizontal", 
-                                    length=850, 
-                                    mode='determinate'
-                                    )
-        progress.pack(padx=5)
+        self.create_dashboard()
         
         #Tasks Manager
         top = ttk.LabelFrame(self.todo_tab, text="➕ Add New Task")
@@ -85,13 +68,14 @@ class Todo_app:
                                    )
         delete_all_bt.pack(side="left", padx=10)
         
-        sort_cat = ['Date', 'Priority', 'Completed', 'Incomplete', 'Overdue']
+        SORT_CATE = ['Date', 'Priority', 'Completed', 'Incomplete', 'Overdue']
         ttk.Label(button_bar, text="Sort by:").pack(side="left")
-        self.filter_bt = ttk.Combobox(button_bar, values=sort_cat,
+        self.sort_bar = ttk.Combobox(button_bar, values=SORT_CATE,
                                       state="readonly",
                                      )
-        self.filter_bt.pack(side="left", padx=10)
-        self.filter_bt.current(0)
+        self.sort_bar.pack(side="left", padx=10)
+        self.sort_bar.current(0)
+        self.sort_bar.bind("<<ComboboxSelected>>", self.sort)
 
         load_bt = ttk.Button(button_bar, text="Import⬇️",
                             command=self.load
@@ -118,57 +102,81 @@ class Todo_app:
         self.table.tag_configure("Done", background="#94C748")
 
         #Pomodoro Timer
-        tk.Label(timer_tab, text="25:00", 
+        tk.Label(self.timer_tab, text="25:00", 
                  font=("Segoe UI", 60, "bold"),
                  borderwidth=2, relief="solid"
                  ).place(anchor="center", x=450, y=75)
 
-        preset_short = tk.Radiobutton(timer_tab, text="Short",
+        preset_short = tk.Radiobutton(self.timer_tab, text="Short",
                                       value="Short", indicatoron=0,
                                       height=2, width=9,
                                       background="light blue", 
                                         borderwidth=2, relief="solid")
         preset_short.place(anchor="center", x=275, y=175)
 
-        preset_long = tk.Radiobutton(timer_tab, text="Long",
+        preset_long = tk.Radiobutton(self.timer_tab, text="Long",
                                       value="Long", indicatoron=0,
                                       background="light blue", 
                                       height=2, width=9,
                                         borderwidth=2, relief="solid")
         preset_long.place(anchor="center", x=450, y=175)
 
-        custom = tk.Radiobutton(timer_tab, text="Custom",
+        custom = tk.Radiobutton(self.timer_tab, text="Custom",
                                       value="Custom", indicatoron=0,
                                       height=2, width=9,
                                       background="light blue", 
                                         borderwidth=2, relief="solid")
         custom.place(anchor="center", x=675, y=175)
 
-        pause_bt = ttk.Button(timer_tab, text="⏸️", command=self.pause)
+        pause_bt = ttk.Button(self.timer_tab, text="⏸️", command=self.pause)
         pause_bt.place(anchor="center", x=450, y=275)
 
-        skip_bt = ttk.Button(timer_tab, text="⏭", command=self.skip)
+        skip_bt = ttk.Button(self.timer_tab, text="⏭", command=self.skip)
         skip_bt.place(anchor="center", x=675, y=275)
 
-        restart_bt = ttk.Button(timer_tab, text="⟲", command=self.restart)
+        restart_bt = ttk.Button(self.timer_tab, text="⟲", command=self.restart)
         restart_bt.place(anchor="center", x=275, y=275)
 
-        status_label = tk.Label(timer_tab, text="Status: On Break")
+        status_label = tk.Label(self.timer_tab, text="Status: On Break")
         status_label.place(anchor="center", x=450, y=375)
 
         self.load(self.PATH)
 
+    def create_dashboard(self):
+        #Dash Board
+        ttk.Label(
+                    self.dashboard_tab,
+                    text="📊Dashboard",
+                    font=("Segoe UI", 18, "bold")
+                ).pack(pady=50)
+        ttk.Label(
+                    self.dashboard_tab,
+                    text="X % completed",
+                    font=("Segoe UI", 12)
+                ).pack()
+
+        progress = ttk.Progressbar(self.dashboard_tab, 
+                                    orient="horizontal", 
+                                    length=850, 
+                                    mode='determinate'
+                                    )
+        progress.pack(padx=5)
+
     def refresh(self):
+        """This method updates the table rows by removing everything
+        then reinsert items from the list."""
 
         rows = self.table.get_children()
         for row in rows:
             self.table.delete(row)
         for i in range(len(self.tasks)):
-            t = self.tasks[i]
+            task = self.tasks[i]
+            value=(task["title"], task["due"], task["priority"], task["state"])
+            tag=(task["priority"] if task["state"] == "☐" else "Done")
             row_id = self.table.insert(
                 "", "end",
-                values=(t["title"], t["due"], t["priority"], t["state"]),
-                tags=(t["priority"] if t["state"] == "☐" else "Done")
+                values=value,
+                tags=tag
             )
             self.tasks[i]["id"] = row_id
 
@@ -176,11 +184,11 @@ class Todo_app:
         with open(self.PATH, "w", newline='', encoding='utf-8') as f:
             csv_writer = csv.writer(f)
             csv_writer.writerow(fieldnames)
-            for u in self.tasks:
-                val = (u['due'], u['title'], u['id'], u['priority'], 
-                       u['state']
+            for task in self.tasks:
+                val = (task['due'], task['title'], task['id'], task['priority'], 
+                       task['state']
                        )
-                print(val)
+                print(val) #debugging, remove later
                 csv_writer.writerow(val)
 
         print("Refreshed")
@@ -301,14 +309,21 @@ class Todo_app:
             with open(new_path, "w", newline='', encoding='utf-8') as f:
                 csv_writer = csv.writer(f)
                 csv_writer.writerow(fieldnames)
-                for u in self.tasks:
-                    val = (u['due'], u['title'], u['id'], u['priority'], 
-                        u['state']
-                        )
-                    csv_writer.writerow(val)
+                for task in self.tasks:
+                    values = (task['due'], task['title'], task['id'], 
+                              task['priority'], task['state']
+                             )
+                    csv_writer.writerow(values)
 
-    def sort(self):
-        pass
+    def sort(self, event):
+        """The method get the catergory from the sort bar
+        then use the sorted function to organise the list of tasks"""
+        category = self.sort_bar.get()
+        if category == "Completed":
+            self.tasks = sorted(self.tasks, key= lambda sortant: sortant["state"], reverse=True)
+        elif category == 'Incomplete':
+            self.tasks = sorted(self.tasks, key= lambda sortant: sortant["state"])
+        self.refresh()
 
     def mark_done(self, event):
         """This method get the ID. Then check for any selection
