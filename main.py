@@ -68,7 +68,9 @@ class Todo_app:
                                    )
         delete_all_bt.pack(side="left", padx=10)
         
-        SORT_CATE = ['Date', 'Priority', 'Completed', 'Incomplete', 'Overdue']
+        SORT_CATE = ['Name', 'Date', 'Highest Priority', 'Lowest Priority', 
+                    'Completed', 'Incomplete', 'Overdue'
+                    ]
         ttk.Label(button_bar, text="Sort by:").pack(side="left")
         self.sort_bar = ttk.Combobox(button_bar, values=SORT_CATE,
                                       state="readonly",
@@ -316,13 +318,24 @@ class Todo_app:
                     csv_writer.writerow(values)
 
     def sort(self, event):
-        """The method get the catergory from the sort bar
+        """The method get the category from the sort bar
         then use the sorted function to organise the list of tasks"""
+        p_order = ['High', 'Medium', 'Low']
         category = self.sort_bar.get()
-        if category == "Completed":
-            self.tasks = sorted(self.tasks, key= lambda sortant: sortant["state"], reverse=True)
+        if category == 'Name':
+            self.tasks = sorted(self.tasks, key= lambda sortant: sortant['title'])
+        elif category == 'Date':
+            pass # do this when you get the date thing figured out
+        elif category == "Highest Priority":
+            self.tasks = sorted(self.tasks, key= lambda sortant: p_order.index(sortant['priority']))
+        elif category == "Lowest Priority":
+            self.tasks = sorted(self.tasks, key= lambda sortant: p_order.index(sortant['priority']), reverse=True)
+        elif category == "Completed":
+            self.tasks = sorted(self.tasks, key= lambda sortant: sortant['state'], reverse=True)
         elif category == 'Incomplete':
-            self.tasks = sorted(self.tasks, key= lambda sortant: sortant["state"])
+            self.tasks = sorted(self.tasks, key= lambda sortant: sortant['state'])
+        else:
+            pass  # do this when you get the date thing figured out
         self.refresh()
 
     def mark_done(self, event):
