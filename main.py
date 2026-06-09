@@ -7,7 +7,7 @@ from datetime import datetime, date
 class Todo_app:
     def __init__(self, root):
         self.root = root
-        self.root.title("ToDoMate")
+        self.root.title("ToDoApp")
         self.root.geometry("900x550")
         self.root.resizable(width=False, height=False)
 
@@ -93,14 +93,15 @@ class Todo_app:
         progress.pack(padx=5)
     
     def create_task_manager(self):
-        #Tasks Manager
+        """This method create all of the widget inside the task manager."""
         top = ttk.LabelFrame(self.todo_tab, text="➕ Add New Task")
         top.pack(fill="x", padx=10, pady=5)
 
         ttk.Label(top, text="Title").grid(row=0, column=0, padx=5)
         self.title_entry = ttk.Entry(top, width=30)
         self.title_entry.grid(row=0, column=1, padx=5)
-
+        
+        # Priority selector
         ttk.Label(top, text="Priority").grid(row=0, column=2, padx=5)
         self.priority_entry = ttk.Combobox(top, 
                                            values=['Low', 'Medium', 'High'],
@@ -112,10 +113,11 @@ class Todo_app:
         style_name_1 = f"Combo1_{id(self.priority_entry)}.TCombobox"
         self.priority_entry.configure(style=style_name_1)
 
+        # Due Date enter
         ttk.Label(top, text="Due Date").grid(row=1, column=0, padx=5)
         self.date_entry = ttk.Entry(top, width=30)
         self.date_entry.grid(row=1, column=1, padx=5)
-
+        
         self.add_bt = ttk.Button(top, text="✅Add Task", command=self.add)
         self.add_bt.grid(row=1, column=3, padx=5)
         
@@ -159,8 +161,9 @@ class Todo_app:
         for column in table_cols:
             self.table.heading(column, text=column)
             self.table.column(column, anchor="center")
-
         self.table.pack(fill="both", expand=True, padx=10)
+
+        # User can double click to mark a task done
         self.table.bind("<Double-1>", self.mark_done)
         # Colour code task based on priority
         self.table.tag_configure("Medium", background="yellow")
@@ -322,15 +325,19 @@ class Todo_app:
         then use the sorted function to organise the list of tasks"""
         p_order = ['High', 'Medium', 'Low']
         sorting_rules = {
-                        #category : (key function for sorting, should reverse)
-                        'Name': (lambda task: task['title'], False),
-                        #'Date': (),
-                        'Highest Priority': (lambda task: p_order.index(task['priority']), False),
-                        'Lowest Priority': (lambda task: p_order.index(task['priority']), True),
-                        'Completed': (lambda task: task['state'], True),
-                        'Incomplete': (lambda task: task['state'], False),
-                        #'Overdue': (),
-                        }
+            #category : (key function for sorting, should reverse)
+            'Name': (lambda task: task['title'], False),
+            #'Date': (),
+            'Highest Priority': (lambda task: p_order.index(task['priority']), 
+                                 False
+                                ),
+            'Lowest Priority': (lambda task: p_order.index(task['priority']), 
+                                True
+                                ),
+            'Completed': (lambda task: task['state'], True),
+            'Incomplete': (lambda task: task['state'], False),
+            #'Overdue': (),
+            }
         category = self.sort_bar.get()
         rule = sorting_rules.get(category)
 

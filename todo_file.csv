@@ -1,6 +1,6 @@
 due,title,id,priority,state
-123,123,I006,High,☐
-123,123,I007,Medium,☐
+123,123,I006,Low,✅
+123,123,I007,Low,☐
 123,123,I008,Low,☐
-123,123,I009,Low,☐
-123,123,I00A,Low,✅
+123,123,I009,Medium,☐
+123,123,I00A,High,☐
