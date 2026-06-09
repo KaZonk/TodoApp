@@ -28,7 +28,71 @@ class Todo_app:
         self.style.theme_use('clam')
 
         self.create_dashboard()
-        
+        self.create_task_manager()
+
+        #Pomodoro Timer
+        tk.Label(self.timer_tab, text="25:00", 
+                 font=("Segoe UI", 60, "bold"),
+                 borderwidth=2, relief="solid"
+                 ).place(anchor="center", x=450, y=75)
+
+        preset_short = tk.Radiobutton(self.timer_tab, text="Short",
+                                      value="Short", indicatoron=0,
+                                      height=2, width=9,
+                                      background="light blue", 
+                                        borderwidth=2, relief="solid")
+        preset_short.place(anchor="center", x=275, y=175)
+
+        preset_long = tk.Radiobutton(self.timer_tab, text="Long",
+                                      value="Long", indicatoron=0,
+                                      background="light blue", 
+                                      height=2, width=9,
+                                        borderwidth=2, relief="solid")
+        preset_long.place(anchor="center", x=450, y=175)
+
+        custom = tk.Radiobutton(self.timer_tab, text="Custom",
+                                      value="Custom", indicatoron=0,
+                                      height=2, width=9,
+                                      background="light blue", 
+                                        borderwidth=2, relief="solid")
+        custom.place(anchor="center", x=675, y=175)
+
+        pause_bt = ttk.Button(self.timer_tab, text="⏸️", command=self.pause)
+        pause_bt.place(anchor="center", x=450, y=275)
+
+        skip_bt = ttk.Button(self.timer_tab, text="⏭", command=self.skip)
+        skip_bt.place(anchor="center", x=675, y=275)
+
+        restart_bt = ttk.Button(self.timer_tab, text="⟲", command=self.restart)
+        restart_bt.place(anchor="center", x=275, y=275)
+
+        status_label = tk.Label(self.timer_tab, text="Status: On Break")
+        status_label.place(anchor="center", x=450, y=375)
+
+        self.load(self.PATH)
+        self.sort(event=None)
+
+    def create_dashboard(self):
+        #Dash Board
+        ttk.Label(
+                    self.dashboard_tab,
+                    text="📊Dashboard",
+                    font=("Segoe UI", 18, "bold")
+                ).pack(pady=50)
+        ttk.Label(
+                    self.dashboard_tab,
+                    text="X % completed",
+                    font=("Segoe UI", 12)
+                ).pack()
+
+        progress = ttk.Progressbar(self.dashboard_tab, 
+                                    orient="horizontal", 
+                                    length=850, 
+                                    mode='determinate'
+                                    )
+        progress.pack(padx=5)
+    
+    def create_task_manager(self):
         #Tasks Manager
         top = ttk.LabelFrame(self.todo_tab, text="➕ Add New Task")
         top.pack(fill="x", padx=10, pady=5)
@@ -103,68 +167,6 @@ class Todo_app:
         self.table.tag_configure("High", background="orange")
         self.table.tag_configure("Done", background="#94C748")
 
-        #Pomodoro Timer
-        tk.Label(self.timer_tab, text="25:00", 
-                 font=("Segoe UI", 60, "bold"),
-                 borderwidth=2, relief="solid"
-                 ).place(anchor="center", x=450, y=75)
-
-        preset_short = tk.Radiobutton(self.timer_tab, text="Short",
-                                      value="Short", indicatoron=0,
-                                      height=2, width=9,
-                                      background="light blue", 
-                                        borderwidth=2, relief="solid")
-        preset_short.place(anchor="center", x=275, y=175)
-
-        preset_long = tk.Radiobutton(self.timer_tab, text="Long",
-                                      value="Long", indicatoron=0,
-                                      background="light blue", 
-                                      height=2, width=9,
-                                        borderwidth=2, relief="solid")
-        preset_long.place(anchor="center", x=450, y=175)
-
-        custom = tk.Radiobutton(self.timer_tab, text="Custom",
-                                      value="Custom", indicatoron=0,
-                                      height=2, width=9,
-                                      background="light blue", 
-                                        borderwidth=2, relief="solid")
-        custom.place(anchor="center", x=675, y=175)
-
-        pause_bt = ttk.Button(self.timer_tab, text="⏸️", command=self.pause)
-        pause_bt.place(anchor="center", x=450, y=275)
-
-        skip_bt = ttk.Button(self.timer_tab, text="⏭", command=self.skip)
-        skip_bt.place(anchor="center", x=675, y=275)
-
-        restart_bt = ttk.Button(self.timer_tab, text="⟲", command=self.restart)
-        restart_bt.place(anchor="center", x=275, y=275)
-
-        status_label = tk.Label(self.timer_tab, text="Status: On Break")
-        status_label.place(anchor="center", x=450, y=375)
-
-        self.load(self.PATH)
-        self.sort(event=None)
-
-    def create_dashboard(self):
-        #Dash Board
-        ttk.Label(
-                    self.dashboard_tab,
-                    text="📊Dashboard",
-                    font=("Segoe UI", 18, "bold")
-                ).pack(pady=50)
-        ttk.Label(
-                    self.dashboard_tab,
-                    text="X % completed",
-                    font=("Segoe UI", 12)
-                ).pack()
-
-        progress = ttk.Progressbar(self.dashboard_tab, 
-                                    orient="horizontal", 
-                                    length=850, 
-                                    mode='determinate'
-                                    )
-        progress.pack(padx=5)
-
     def refresh(self):
         """This method updates the table rows by removing everything
         then reinsert items from the list."""
@@ -191,7 +193,6 @@ class Todo_app:
                 val = (task['due'], task['title'], task['id'], task['priority'], 
                        task['state']
                        )
-                print(val) #debugging, remove later
                 csv_writer.writerow(val)
 
         print("Refreshed")
@@ -200,7 +201,6 @@ class Todo_app:
         """The method get the title an due date
         then validate the data, added the new task to the 
         list above and refresh it"""
-       
         title = self.title_entry.get()
         title.strip()
 
@@ -247,7 +247,6 @@ class Todo_app:
                         "Are you sure you want to DELETE ALL existing tasks?"):
             self.tasks.clear()
             self.refresh()
-            print("All tasks deleted")
         else:
             return
         
@@ -334,7 +333,7 @@ class Todo_app:
                         }
         category = self.sort_bar.get()
         rule = sorting_rules.get(category)
-        
+
         if rule:
             key_function, should_reverse = rule
             self.tasks = sorted(self.tasks, key=key_function, reverse=should_reverse)
