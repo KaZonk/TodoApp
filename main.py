@@ -143,6 +143,7 @@ class Todo_app:
         status_label.place(anchor="center", x=450, y=375)
 
         self.load(self.PATH)
+        self.sort(event=None)
 
     def create_dashboard(self):
         #Dash Board
@@ -321,21 +322,22 @@ class Todo_app:
         """The method get the category from the sort bar
         then use the sorted function to organise the list of tasks"""
         p_order = ['High', 'Medium', 'Low']
+        sorting_rules = {
+                        #category : (key function for sorting, should reverse)
+                        'Name': (lambda task: task['title'], False),
+                        #'Date': (),
+                        'Highest Priority': (lambda task: p_order.index(task['priority']), False),
+                        'Lowest Priority': (lambda task: p_order.index(task['priority']), True),
+                        'Completed': (lambda task: task['state'], True),
+                        'Incomplete': (lambda task: task['state'], False),
+                        #'Overdue': (),
+                        }
         category = self.sort_bar.get()
-        if category == 'Name':
-            self.tasks = sorted(self.tasks, key= lambda sortant: sortant['title'])
-        elif category == 'Date':
-            pass # do this when you get the date thing figured out
-        elif category == "Highest Priority":
-            self.tasks = sorted(self.tasks, key= lambda sortant: p_order.index(sortant['priority']))
-        elif category == "Lowest Priority":
-            self.tasks = sorted(self.tasks, key= lambda sortant: p_order.index(sortant['priority']), reverse=True)
-        elif category == "Completed":
-            self.tasks = sorted(self.tasks, key= lambda sortant: sortant['state'], reverse=True)
-        elif category == 'Incomplete':
-            self.tasks = sorted(self.tasks, key= lambda sortant: sortant['state'])
-        else:
-            pass  # do this when you get the date thing figured out
+        rule = sorting_rules.get(category)
+        
+        if rule:
+            key_function, should_reverse = rule
+            self.tasks = sorted(self.tasks, key=key_function, reverse=should_reverse)
         self.refresh()
 
     def mark_done(self, event):
