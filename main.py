@@ -23,6 +23,7 @@ class Todo_app:
         self.tabs.add(self.todo_tab, text="To-Do List")
         self.tabs.add(self.timer_tab, text="Pomodoro Timer")
         self.tabs.pack(expand=True, fill="both")
+        self.tabs.bind("<<NotebookTabChanged>>", self.calculate_percent)
 
         self.style = ttk.Style()
         self.style.theme_use('clam')
@@ -200,7 +201,10 @@ class Todo_app:
                        )
                 csv_writer.writerow(val)
 
-        print("Refreshed")
+    def calculate_percent(self, event = None):
+        current_tab = self.tabs.select()
+        if current_tab == '.!notebook.!frame':
+            print('Youre selecting timer')
 
     def add(self):
         """The method get the title an due date
