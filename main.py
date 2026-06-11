@@ -29,45 +29,7 @@ class Todo_app:
 
         self.create_dashboard()
         self.create_task_manager()
-
-        #Pomodoro Timer
-        tk.Label(self.timer_tab, text="25:00", 
-                 font=("Segoe UI", 60, "bold"),
-                 borderwidth=2, relief="solid"
-                 ).place(anchor="center", x=450, y=75)
-
-        preset_short = tk.Radiobutton(self.timer_tab, text="Short",
-                                      value="Short", indicatoron=0,
-                                      height=2, width=9,
-                                      background="light blue", 
-                                        borderwidth=2, relief="solid")
-        preset_short.place(anchor="center", x=275, y=175)
-
-        preset_long = tk.Radiobutton(self.timer_tab, text="Long",
-                                      value="Long", indicatoron=0,
-                                      background="light blue", 
-                                      height=2, width=9,
-                                        borderwidth=2, relief="solid")
-        preset_long.place(anchor="center", x=450, y=175)
-
-        custom = tk.Radiobutton(self.timer_tab, text="Custom",
-                                      value="Custom", indicatoron=0,
-                                      height=2, width=9,
-                                      background="light blue", 
-                                        borderwidth=2, relief="solid")
-        custom.place(anchor="center", x=675, y=175)
-
-        pause_bt = ttk.Button(self.timer_tab, text="⏸️", command=self.pause)
-        pause_bt.place(anchor="center", x=450, y=275)
-
-        skip_bt = ttk.Button(self.timer_tab, text="⏭", command=self.skip)
-        skip_bt.place(anchor="center", x=675, y=275)
-
-        restart_bt = ttk.Button(self.timer_tab, text="⟲", command=self.restart)
-        restart_bt.place(anchor="center", x=275, y=275)
-
-        status_label = tk.Label(self.timer_tab, text="Status: On Break")
-        status_label.place(anchor="center", x=450, y=375)
+        self.create_timer()
 
         self.load(self.PATH)
         self.sort(event=None)
@@ -169,6 +131,46 @@ class Todo_app:
         self.table.tag_configure("Medium", background="yellow")
         self.table.tag_configure("High", background="orange")
         self.table.tag_configure("Done", background="#94C748")
+    
+    def create_timer(self):
+        #Pomodoro Timer
+        tk.Label(self.timer_tab, text="25:00", 
+                 font=("Segoe UI", 60, "bold"),
+                 borderwidth=2, relief="solid"
+                 ).place(anchor="center", x=450, y=75)
+
+        preset_short = tk.Radiobutton(self.timer_tab, text="Short",
+                                      value="Short", indicatoron=0,
+                                      height=2, width=9,
+                                      background="light blue", 
+                                        borderwidth=2, relief="solid")
+        preset_short.place(anchor="center", x=275, y=175)
+
+        preset_long = tk.Radiobutton(self.timer_tab, text="Long",
+                                      value="Long", indicatoron=0,
+                                      background="light blue", 
+                                      height=2, width=9,
+                                        borderwidth=2, relief="solid")
+        preset_long.place(anchor="center", x=450, y=175)
+
+        custom = tk.Radiobutton(self.timer_tab, text="Custom",
+                                      value="Custom", indicatoron=0,
+                                      height=2, width=9,
+                                      background="light blue", 
+                                        borderwidth=2, relief="solid")
+        custom.place(anchor="center", x=675, y=175)
+
+        pause_bt = ttk.Button(self.timer_tab, text="⏸️", command=self.pause)
+        pause_bt.place(anchor="center", x=450, y=275)
+
+        skip_bt = ttk.Button(self.timer_tab, text="⏭", command=self.skip)
+        skip_bt.place(anchor="center", x=675, y=275)
+
+        restart_bt = ttk.Button(self.timer_tab, text="⟲", command=self.restart)
+        restart_bt.place(anchor="center", x=275, y=275)
+
+        status_label = tk.Label(self.timer_tab, text="Status: On Break")
+        status_label.place(anchor="center", x=450, y=375)
 
     def refresh(self):
         """This method updates the table rows by removing everything
