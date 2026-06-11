@@ -42,11 +42,12 @@ class Todo_app:
                     text="📊Dashboard",
                     font=("Segoe UI", 18, "bold")
                 ).pack(pady=50)
-        ttk.Label(
+        self.p_label = ttk.Label(
                     self.dashboard_tab,
                     text="X % completed",
                     font=("Segoe UI", 12)
-                ).pack()
+                )
+        self.p_label.pack()
 
         progress = ttk.Progressbar(self.dashboard_tab, 
                                     orient="horizontal", 
@@ -175,8 +176,8 @@ class Todo_app:
 
     def refresh(self):
         """This method updates the table rows by removing everything
-        then reinsert items from the list."""
-
+        then reinsert items from the list.""" 
+        # Update table
         rows = self.table.get_children()
         for row in rows:
             self.table.delete(row)
@@ -191,6 +192,8 @@ class Todo_app:
             )
             self.tasks[i]["id"] = row_id
 
+        
+        # Update CSV file
         fieldnames = ('due', 'title', 'id', 'priority', 'state')
         with open(self.PATH, "w", newline='', encoding='utf-8') as f:
             csv_writer = csv.writer(f)
@@ -201,10 +204,20 @@ class Todo_app:
                        )
                 csv_writer.writerow(val)
 
+
     def calculate_percent(self, event = None):
+        dashboard = '.!notebook.!frame'
+        completed = 0
+        incompleted = 0
         current_tab = self.tabs.select()
-        if current_tab == '.!notebook.!frame':
-            print('Youre selecting timer')
+        if current_tab == dashboard:
+            for task in self.tasks:
+                if task['state'] == '✅':
+                    completed += 1
+                else:
+                    incompleted += 1
+            completed_percent = int(100 * completed / (incompleted + completed))
+            self.p_label['text'] = f"{completed_percent}% Completed"
 
     def add(self):
         """The method get the title an due date
