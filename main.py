@@ -27,6 +27,10 @@ class Todo_app:
 
         self.style = ttk.Style()
         self.style.theme_use('clam')
+        self.style.configure('custom.Horizontal.TProgressbar', 
+                             background='#18bc9c', 
+                             troughcolor='#ecf0f1'
+                            )
 
         self.create_dashboard()
         self.create_task_manager()
@@ -47,14 +51,15 @@ class Todo_app:
                     text="X % completed",
                     font=("Segoe UI", 12)
                 )
-        self.p_label.pack()
+        self.p_label.pack(padx=5)
 
-        progress = ttk.Progressbar(self.dashboard_tab, 
+        self.progress = ttk.Progressbar(self.dashboard_tab, 
                                     orient="horizontal", 
                                     length=850, 
-                                    mode='determinate'
+                                    mode='determinate',
+                                    style='custom.Horizontal.TProgressbar'
                                     )
-        progress.pack(padx=5)
+        self.progress.pack(padx=5)
     
     def create_task_manager(self):
         """This method create all of the widget inside the task manager."""
@@ -145,14 +150,16 @@ class Todo_app:
                                       value="Short", indicatoron=0,
                                       height=2, width=9,
                                       background="light blue", 
-                                        borderwidth=2, relief="solid")
+                                      borderwidth=2, relief="solid"
+                                      )
         preset_short.place(anchor="center", x=275, y=175)
 
         preset_long = tk.Radiobutton(self.timer_tab, text="Long",
                                       value="Long", indicatoron=0,
                                       background="light blue", 
                                       height=2, width=9,
-                                        borderwidth=2, relief="solid")
+                                        borderwidth=2, relief="solid"
+                                    )
         preset_long.place(anchor="center", x=450, y=175)
 
         custom = tk.Radiobutton(self.timer_tab, text="Custom",
@@ -204,7 +211,6 @@ class Todo_app:
                        )
                 csv_writer.writerow(val)
 
-
     def calculate_percent(self, event = None):
         dashboard = '.!notebook.!frame'
         completed = 0
@@ -218,6 +224,7 @@ class Todo_app:
                     incompleted += 1
             completed_percent = int(100 * completed / (incompleted + completed))
             self.p_label['text'] = f"{completed_percent}% Completed"
+            self.progress['value'] = completed_percent
 
     def add(self):
         """The method get the title an due date
@@ -260,7 +267,6 @@ class Todo_app:
                 if task.get("id") == item:
                     self.tasks.remove(task)
         self.refresh()
-
 
     def clear_all(self):
         """The Method ask a confirmation before deleting
@@ -319,7 +325,6 @@ class Todo_app:
                         )
             return
             
-
     def export(self):
         """This method save a path to user choosing and write
         that like a csv file"""
@@ -379,14 +384,14 @@ class Todo_app:
         else:
             for task in self.tasks:
                 if task.get("id") == item:
-                    if task["state"] == "☐":
-                            task["state"] = "✅"
-                    else:
-                        task["state"] = "☐"
+                    task["state"] = "✅" if task["state"] == "☐" else "☐"
 
         self.refresh()    
         print("Marked done")
-        
+    
+    def preset(self):
+        pass
+
     def pause(self):
         print("pause")
 
