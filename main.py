@@ -23,7 +23,7 @@ class Todo_app:
         self.tabs.add(self.todo_tab, text="To-Do List")
         self.tabs.add(self.timer_tab, text="Pomodoro Timer")
         self.tabs.pack(expand=True, fill="both")
-        self.tabs.bind("<<NotebookTabChanged>>", self.calculate_percent)
+        self.tabs.bind("<<NotebookTabChanged>>", self.calc_percent)
 
         self.style = ttk.Style()
         self.style.theme_use('clam')
@@ -140,17 +140,40 @@ class Todo_app:
         self.table.tag_configure("Done", background="#94C748")
     
     def create_timer(self):
-        #Pomodoro Timer
-        tk.Label(self.timer_tab, text="25:00", 
-                 font=("Segoe UI", 60, "bold"),
-                 borderwidth=2, relief="solid"
-                 ).place(anchor="center", x=450, y=75)
+        """ Pomodoro Timer"""
+        FONT = ("Segoe UI", 60, "bold")
+        self.hour=tk.StringVar()
+        self.minute=tk.StringVar()
+        self.second=tk.StringVar()
+        self.hour.set("00")
+        self.minute.set("00")
+        self.second.set("00")
+
+        hourEntry= ttk.Entry(self.timer_tab, width=3, font=FONT, 
+                             textvariable=self.hour
+                             )
+        hourEntry.place(x=185,y=75, width=125)
+
+        ttk.Label(self.timer_tab, width=3, font=FONT, text=":").place(x=345, y=75)
+
+        minuteEntry= ttk.Entry(self.timer_tab, width=3, font=FONT,
+                               textvariable=self.minute
+                               )
+        minuteEntry.place(x=385, y=75, width=125)
+
+        ttk.Label(self.timer_tab, width=3, font=FONT, text=":").place(x=545,y=75)
+
+        secondEntry= ttk.Entry(self.timer_tab, width=3, font=FONT, 
+                               textvariable=self.second
+                               )
+        secondEntry.place(x=585, y=75, width=125)
 
         preset_short = tk.Radiobutton(self.timer_tab, text="Short",
                                       value="Short", indicatoron=0,
                                       height=2, width=9,
                                       background="light blue", 
-                                      borderwidth=2, relief="solid"
+                                      borderwidth=2, relief="solid",
+                                      command = (lambda: self.minute.set("25"))
                                       )
         preset_short.place(anchor="center", x=275, y=175)
 
@@ -158,7 +181,8 @@ class Todo_app:
                                       value="Long", indicatoron=0,
                                       background="light blue", 
                                       height=2, width=9,
-                                        borderwidth=2, relief="solid"
+                                        borderwidth=2, relief="solid",
+                                        command = (lambda: self.hour.set("1"), self.minute.set("15"))
                                     )
         preset_long.place(anchor="center", x=450, y=175)
 
@@ -166,7 +190,8 @@ class Todo_app:
                                       value="Custom", indicatoron=0,
                                       height=2, width=9,
                                       background="light blue", 
-                                        borderwidth=2, relief="solid")
+                                        borderwidth=2, relief="solid"
+                                )
         custom.place(anchor="center", x=675, y=175)
 
         pause_bt = ttk.Button(self.timer_tab, text="⏸️", command=self.pause)
@@ -211,7 +236,7 @@ class Todo_app:
                        )
                 csv_writer.writerow(val)
 
-    def calculate_percent(self, event = None):
+    def calc_percent(self, event = None):
         dashboard = '.!notebook.!frame'
         completed = 0
         incompleted = 0
@@ -222,9 +247,15 @@ class Todo_app:
                     completed += 1
                 else:
                     incompleted += 1
-            completed_percent = int(100 * completed / (incompleted + completed))
-            self.p_label['text'] = f"{completed_percent}% Completed"
-            self.progress['value'] = completed_percent
+            try:
+            
+                completed_percent = int(100 * completed / (incompleted + completed))
+            except ZeroDivisionError:
+                self.p_label['text'] = "0"
+                self.progress['value'] = 0
+            else:
+                self.p_label['text'] = f"{completed_percent}% Completed"
+                self.progress['value'] = completed_percent
 
     def add(self):
         """The method get the title an due date
@@ -257,7 +288,6 @@ class Todo_app:
         self.date_entry.delete(0, tk.END)
         self.title_entry.delete(0, tk.END) 
 
-    
     def remove(self):
         """This method get the ID from the selected children
         in the table. Then it compare the ID to tasks
@@ -390,6 +420,9 @@ class Todo_app:
         print("Marked done")
     
     def preset(self):
+        pass
+
+    def update_timer(self):
         pass
 
     def pause(self):
