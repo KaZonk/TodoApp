@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox as mb, filedialog
 import csv
 from datetime import datetime, date
+import time
+
 
 class Todo_app:
     def __init__(self, root):
@@ -145,6 +147,8 @@ class Todo_app:
         self.hour=tk.StringVar(value="00")
         self.minute=tk.StringVar(value="00")
         self.second=tk.StringVar(value="00")
+        self.timer_running = False
+        self.Duration = 0
 
         self.hourEntry= ttk.Entry(self.timer_tab, width=3, font=FONT, 
                              textvariable=self.hour
@@ -429,17 +433,26 @@ class Todo_app:
         self.second.set(second)
 
     def update_timer(self):
-        H = self.hour.get() * 60 * 60
-        M = self.minute.get() * 60
-        S = self.second.get()
-        Duration = H + M + S
-        print(H)
-        print(M)
-        print(S)
+        self.timer_running = True
+        H = int(self.hour.get()) * 60 * 60
+        M = int(self.minute.get()) * 60
+        S = int(self.second.get())
+        self.Duration = H + M + S
+        if self.Duration < 0:
+            self.Duration = 0
+            self.pause_timer()
+            mb.showinfo("Countdown Timer", "Time is up!")
+        self.Duration -= 1
+        print(self.Duration)
+
+        # Set a timer to update again in 1 second
+        self.root.after(1000, self.update_timer)
+
+        
         
 
     def pause(self):
-        print("pause")
+        self.timer_running = False
 
     def skip(self):
         print("Skipped")
