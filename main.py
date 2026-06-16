@@ -142,69 +142,69 @@ class Todo_app:
     def create_timer(self):
         """ Pomodoro Timer"""
         FONT = ("Segoe UI", 60, "bold")
-        self.hour=tk.StringVar()
-        self.minute=tk.StringVar()
-        self.second=tk.StringVar()
-        self.hour.set("00")
-        self.minute.set("00")
-        self.second.set("00")
+        self.hour=tk.StringVar(value="00")
+        self.minute=tk.StringVar(value="00")
+        self.second=tk.StringVar(value="00")
 
-        hourEntry= ttk.Entry(self.timer_tab, width=3, font=FONT, 
+        self.hourEntry= ttk.Entry(self.timer_tab, width=3, font=FONT, 
                              textvariable=self.hour
                              )
-        hourEntry.place(x=185,y=75, width=125)
+        self.hourEntry.place(x=210,y=75, width=120)
 
-        ttk.Label(self.timer_tab, width=3, font=FONT, text=":").place(x=345, y=75)
+        ttk.Label(self.timer_tab, width=3, font=FONT, text=":").place(x=350, y=75)
 
-        minuteEntry= ttk.Entry(self.timer_tab, width=3, font=FONT,
+        self.minuteEntry= ttk.Entry(self.timer_tab, width=3, font=FONT,
                                textvariable=self.minute
                                )
-        minuteEntry.place(x=385, y=75, width=125)
+        self.minuteEntry.place(x=390, y=75, width=120)
 
-        ttk.Label(self.timer_tab, width=3, font=FONT, text=":").place(x=545,y=75)
+        ttk.Label(self.timer_tab, width=3, font=FONT, text=":").place(x=530,y=75)
 
-        secondEntry= ttk.Entry(self.timer_tab, width=3, font=FONT, 
+        self.secondEntry= ttk.Entry(self.timer_tab, width=3, font=FONT, 
                                textvariable=self.second
                                )
-        secondEntry.place(x=585, y=75, width=125)
+        self.secondEntry.place(x=570, y=75, width=120)
 
         preset_short = tk.Radiobutton(self.timer_tab, text="Short",
-                                      value="Short", indicatoron=0,
-                                      height=2, width=9,
-                                      background="light blue", 
-                                      borderwidth=2, relief="solid",
-                                      command = (lambda: self.minute.set("25"))
+                                    value="Short", indicatoron=0, height=2, 
+                                    width=9, background="light blue", 
+                                    borderwidth=2, relief="solid",
+                                    command= lambda: self.preset("00", "25") 
                                       )
-        preset_short.place(anchor="center", x=275, y=175)
+        preset_short.place(anchor="center", x=275, y=250)
 
-        preset_long = tk.Radiobutton(self.timer_tab, text="Long",
-                                      value="Long", indicatoron=0,
-                                      background="light blue", 
-                                      height=2, width=9,
-                                        borderwidth=2, relief="solid",
-                                        command = (lambda: self.hour.set("1"), self.minute.set("15"))
+        preset_long = tk.Radiobutton(self.timer_tab, text="Long", value="Long", 
+                                    indicatoron=0, background="light blue", 
+                                    height=2, width=9,
+                                    borderwidth=2, relief="solid",
+                                    command= lambda: self.preset("01", "15")
                                     )
-        preset_long.place(anchor="center", x=450, y=175)
+        preset_long.place(anchor="center", x=450, y=250)
 
         custom = tk.Radiobutton(self.timer_tab, text="Custom",
-                                      value="Custom", indicatoron=0,
-                                      height=2, width=9,
-                                      background="light blue", 
-                                        borderwidth=2, relief="solid"
+                                value="Custom", indicatoron=0,
+                                height=2, width=9,
+                                background="light blue", 
+                                borderwidth=2, relief="solid",
+                                command= lambda: self.preset()
                                 )
-        custom.place(anchor="center", x=675, y=175)
-
-        pause_bt = ttk.Button(self.timer_tab, text="⏸️", command=self.pause)
-        pause_bt.place(anchor="center", x=450, y=275)
+        custom.place(anchor="center", x=625, y=250)
+        # ▶  ⏸️
+        pause_bt = ttk.Button(self.timer_tab, text="▶", command=self.pause)
+        pause_bt.place(anchor="center", x=450, y=300)
 
         skip_bt = ttk.Button(self.timer_tab, text="⏭", command=self.skip)
-        skip_bt.place(anchor="center", x=675, y=275)
+        skip_bt.place(anchor="center", x=625, y=300)
 
         restart_bt = ttk.Button(self.timer_tab, text="⟲", command=self.restart)
-        restart_bt.place(anchor="center", x=275, y=275)
+        restart_bt.place(anchor="center", x=275, y=300)
+
+        debug = ttk.Button(self.timer_tab, text="debug", command=self.update_timer)
+        debug.place(anchor="center", x=50, y=300)
+
 
         status_label = tk.Label(self.timer_tab, text="Status: On Break")
-        status_label.place(anchor="center", x=450, y=375)
+        status_label.place(anchor="center", x=450, y=400)
 
     def refresh(self):
         """This method updates the table rows by removing everything
@@ -237,6 +237,10 @@ class Todo_app:
                 csv_writer.writerow(val)
 
     def calc_percent(self, event = None):
+        """The method make sure the cursor isn't automatically put on and 
+        highlight entry box w/ focus_set(). It also calculate the percentage 
+        of completed task if clicked on the dashboard(frame0)"""
+        event.widget.focus_set()
         dashboard = '.!notebook.!frame'
         completed = 0
         incompleted = 0
@@ -419,11 +423,20 @@ class Todo_app:
         self.refresh()    
         print("Marked done")
     
-    def preset(self):
-        pass
+    def preset(self, hour="00", minute="00", second="00"):
+        self.hour.set(hour)
+        self.minute.set(minute)
+        self.second.set(second)
 
     def update_timer(self):
-        pass
+        H = self.hour.get() * 60 * 60
+        M = self.minute.get() * 60
+        S = self.second.get()
+        Duration = H + M + S
+        print(H)
+        print(M)
+        print(S)
+        
 
     def pause(self):
         print("pause")
