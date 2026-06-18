@@ -194,8 +194,8 @@ class Todo_app:
                                 )
         custom.place(anchor="center", x=625, y=250)
         # ▶  ⏸️
-        pause_bt = ttk.Button(self.timer_tab, text="▶", command=self.pause)
-        pause_bt.place(anchor="center", x=450, y=300)
+        self.pause_bt = ttk.Button(self.timer_tab, text="▶", command=self.pause)
+        self.pause_bt.place(anchor="center", x=450, y=300)
 
         skip_bt = ttk.Button(self.timer_tab, text="⏭", command=self.skip)
         skip_bt.place(anchor="center", x=625, y=300)
@@ -203,12 +203,9 @@ class Todo_app:
         restart_bt = ttk.Button(self.timer_tab, text="⟲", command=self.restart)
         restart_bt.place(anchor="center", x=275, y=300)
 
-        debug = ttk.Button(self.timer_tab, text="debug", command=self.update_timer)
-        debug.place(anchor="center", x=50, y=300)
 
-
-        status_label = tk.Label(self.timer_tab, text="Status: On Break")
-        status_label.place(anchor="center", x=450, y=400)
+        self.status_label = tk.Label(self.timer_tab, text="Status: On Break")
+        self.status_label.place(anchor="center", x=450, y=400)
 
     def refresh(self):
         """This method updates the table rows by removing everything
@@ -433,26 +430,43 @@ class Todo_app:
         self.second.set(second)
 
     def update_timer(self):
-        self.timer_running = True
-        H = int(self.hour.get()) * 60 * 60
-        M = int(self.minute.get()) * 60
-        S = int(self.second.get())
-        self.Duration = H + M + S
-        if self.Duration < 0:
-            self.Duration = 0
-            self.pause_timer()
-            mb.showinfo("Countdown Timer", "Time is up!")
-        self.Duration -= 1
-        print(self.Duration)
+        try:
+            self.Duration = 3600 * int(self.hour.get()) + 60 * int(self.minute.get()) + int(self.second.get())
+        except ValueError:
+            return
+        if self.timer_running == True:
+            self.Duration -= 1
+            if self.Duration < 0:
+                self.timer_running = False
+                mb.showinfo("Countdown Timer", "Time is up!")
+            else:
+                print(self.Duration)
+                new_H = self.Duration // 3600 #calculate hour w/ floor div
+                new_M = (self.Duration // 60) % 60 #calculate minute w/ modulus and floor div
+                new_S = self.Duration % 60 #calculate minute w/ modulus
+                print(f"Hour: {new_H}, Minute: {new_M}, Second: {new_S}")
+                self.hour.set(f"{new_H:02d}")
+                self.minute.set(f"{new_M:02}")
+                self.second.set(f"{new_S:02}")
+                self.root.after(1000, self.update_timer)
 
-        # Set a timer to update again in 1 second
-        self.root.after(1000, self.update_timer)
+
 
         
-        
-
     def pause(self):
-        self.timer_running = False
+        if self.timer_running == True:
+            self.timer_running = False
+            self.pause_bt['text'] = "▶"
+            self.secondEntry['state'] = 'normal'
+            self.minuteEntry['state'] = 'normal'
+            self.hourEntry['state'] = 'normal'
+        else:
+            self.timer_running = True
+            self.update_timer()
+            self.pause_bt['text'] = "⏸️"
+            self.secondEntry['state'] = 'readonly'
+            self.minuteEntry['state'] = 'readonly'
+            self.hourEntry['state'] = 'readonly'
 
     def skip(self):
         print("Skipped")
