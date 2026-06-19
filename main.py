@@ -42,7 +42,7 @@ class Todo_app:
         self.sort(event=None)
 
     def create_dashboard(self):
-        #Dash Board
+        """The method create the dashboard"""
         ttk.Label(
                     self.dashboard_tab,
                     text="📊Dashboard",
@@ -149,6 +149,7 @@ class Todo_app:
         self.second=tk.StringVar(value="00")
         self.timer_running = False
         self.Duration = 0
+        self.last_saved_t = 0
 
         self.hourEntry= ttk.Entry(self.timer_tab, width=3, font=FONT, 
                              textvariable=self.hour
@@ -173,7 +174,7 @@ class Todo_app:
                                     value="Short", indicatoron=0, height=2, 
                                     width=9, background="light blue", 
                                     borderwidth=2, relief="solid",
-                                    command= lambda: self.preset("00", "25") 
+                                    command= lambda: self.set_time("00", "25") 
                                       )
         preset_short.place(anchor="center", x=275, y=250)
 
@@ -181,7 +182,7 @@ class Todo_app:
                                     indicatoron=0, background="light blue", 
                                     height=2, width=9,
                                     borderwidth=2, relief="solid",
-                                    command= lambda: self.preset("01", "15")
+                                    command= lambda: self.set_time("01", "15")
                                     )
         preset_long.place(anchor="center", x=450, y=250)
 
@@ -190,14 +191,14 @@ class Todo_app:
                                 height=2, width=9,
                                 background="light blue", 
                                 borderwidth=2, relief="solid",
-                                command= lambda: self.preset()
+                                command= lambda: self.set_time()
                                 )
         custom.place(anchor="center", x=625, y=250)
         # ▶  ⏸️
         self.pause_bt = ttk.Button(self.timer_tab, text="▶", command=self.pause)
         self.pause_bt.place(anchor="center", x=450, y=300)
 
-        skip_bt = ttk.Button(self.timer_tab, text="⏭", command=self.skip)
+        skip_bt = ttk.Button(self.timer_tab, text="⏭", command=self.end_timer)
         skip_bt.place(anchor="center", x=625, y=300)
 
         restart_bt = ttk.Button(self.timer_tab, text="⟲", command=self.restart)
@@ -424,7 +425,7 @@ class Todo_app:
         self.refresh()    
         print("Marked done")
     
-    def preset(self, hour="00", minute="00", second="00"):
+    def set_time(self, hour="00", minute="00", second="00"):
         self.hour.set(hour)
         self.minute.set(minute)
         self.second.set(second)
@@ -437,17 +438,15 @@ class Todo_app:
         if self.timer_running == True:
             self.Duration -= 1
             if self.Duration < 0:
-                self.timer_running = False
+                self.end_timer()
+                self.pause()
                 mb.showinfo("Countdown Timer", "Time is up!")
             else:
-                print(self.Duration)
                 new_H = self.Duration // 3600 #calculate hour w/ floor div
                 new_M = (self.Duration // 60) % 60 #calculate minute w/ modulus and floor div
                 new_S = self.Duration % 60 #calculate minute w/ modulus
                 print(f"Hour: {new_H}, Minute: {new_M}, Second: {new_S}")
-                self.hour.set(f"{new_H:02d}")
-                self.minute.set(f"{new_M:02}")
-                self.second.set(f"{new_S:02}")
+                self.set_time(f"{new_H:02d}", f"{new_M:02}", f"{new_S:02}")
                 self.root.after(1000, self.update_timer)
 
 
@@ -467,12 +466,20 @@ class Todo_app:
             self.secondEntry['state'] = 'readonly'
             self.minuteEntry['state'] = 'readonly'
             self.hourEntry['state'] = 'readonly'
+            self.last_saved_t = (3600 * int(self.hour.get()) + 
+                                60 * int(self.minute.get()) + 
+                                int(self.second.get()) + 1
+                                )
 
-    def skip(self):
-        print("Skipped")
+    def end_timer(self):
+        self.last_saved_t = 0
+        self.set_time("00", "00", "00")
 
     def restart(self):
-        print("Restart timer")
+        new_H = self.last_saved_t // 3600 
+        new_M = (self.last_saved_t// 60) % 60 
+        new_S = self.last_saved_t % 60 
+        self.set_time(f"{new_H:02d}", f"{new_M:02}", f"{new_S:02}")
 
 
 if __name__ == "__main__":
