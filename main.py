@@ -2,7 +2,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox as mb, filedialog
 import csv
-from datetime import datetime, date
+from datetime import datetime as dt
 import time
 
 
@@ -70,7 +70,7 @@ class Todo_app:
 
         ttk.Label(top, text="Title").grid(row=0, column=0, padx=5)
         self.title_entry = ttk.Entry(top, width=30)
-        self.title_entry.grid(row=0, column=1, padx=5)
+        self.title_entry.grid(row=0, column=1, padx=5, pady=5)
         
         # Priority selector
         ttk.Label(top, text="Priority").grid(row=0, column=2, padx=5)
@@ -78,51 +78,70 @@ class Todo_app:
                                            values=['Low', 'Medium', 'High'],
                                            state='readonly',
                                            )
-        self.priority_entry.grid(row=0, column=3, padx=5)
+        self.priority_entry.grid(row=0, column=3, padx=5, pady=5)
         self.priority_entry.current(0)
         self.priority_entry.bind("<<ComboboxSelected>>", self.combo_colour)
         style_name_1 = f"Combo1_{id(self.priority_entry)}.TCombobox"
         self.priority_entry.configure(style=style_name_1)
+        
+        # Create the Due Date entry so the user can choose date in dd-MM-YYYY
+        ttk.Label(top, text="Due Date:").grid(row=1, column=0, padx=5)
+        due_date_frame = ttk.Frame(top)
+        due_date_frame.grid(row=1, column=1, padx=5, pady=5)
 
-        # Due Date enter
-        ttk.Label(top, text="Due Date").grid(row=1, column=0, padx=5)
-        self.date_entry = ttk.Entry(top, width=30)
-        self.date_entry.grid(row=1, column=1, padx=5)
+        ttk.Label(due_date_frame, text="DD:").pack(side="left", padx=5)
+        self.date_entry = ttk.Combobox(due_date_frame, 
+                                       values=[d for d in range(1, 31+1)],
+                                       width= 3)
+        self.date_entry.pack(side="left", padx=5, pady=5)
         
+        ttk.Label(due_date_frame, text="MM:").pack(side="left", padx=5)
+        self.month_entry = ttk.Combobox(due_date_frame, 
+                                       values=[d for d in range(1, 12+1)],
+                                       width= 3)
+        self.month_entry.pack(side="left", padx=5, pady=5)
+        
+        ttk.Label(due_date_frame, text="YYYY:").pack(side="left", padx=5)
+        self.year_entry = ttk.Entry(due_date_frame, 
+                                    width=6)
+        self.year_entry.pack(side="left", padx=5, pady=5)
+
+        # add button
         self.add_bt = ttk.Button(top, text="✅Add Task", command=self.add)
-        self.add_bt.grid(row=1, column=3, padx=5)
+        self.add_bt.grid(row=1, column=3, padx=5, pady=5)
         
+        # delete, sort, import, export and configuring the treeview(table)
         button_bar = ttk.Frame(self.todo_tab)
         button_bar.pack(fill="x", padx=10, pady=5)
 
         delete_bt = ttk.Button(button_bar, text="✖️Delete"
                                ,command=self.remove
                                )
-        delete_bt.pack(side="left", padx=10)
+        delete_bt.pack(side="left", padx=10, pady=5)
 
-        delete_all_bt = ttk.Button(button_bar, text="⚠Delete All",
+        delete_all_bt = tk.Button(button_bar, text="⚠Delete All",
                                    command=self.clear_all
                                    )
-        delete_all_bt.pack(side="left", padx=10)
+        delete_all_bt.pack(side="right", padx=10, pady=5)
         
-        SORT_CATE = ['Name', 'Date', 'Highest Priority', 'Lowest Priority', 
-                    'Completed', 'Incomplete', 'Overdue'
+        SORT_CATE = ['Name', 'Due Date', 'Highest Priority', 'Lowest Priority', 
+                    'Completed', 'Incomplete'
                     ]
         ttk.Label(button_bar, text="Sort by:").pack(side="left")
         self.sort_bar = ttk.Combobox(button_bar, values=SORT_CATE,
                                       state="readonly",
                                      )
-        self.sort_bar.pack(side="left", padx=10)
+        self.sort_bar.pack(side="left", padx=10, pady=5)
         self.sort_bar.current(0)
         self.sort_bar.bind("<<ComboboxSelected>>", self.sort)
 
         load_bt = ttk.Button(button_bar, text="Import⬇️",
                             command=self.load
-                            ).pack(side="left", padx=10)
+                            ).pack(side="left", padx=10, pady=5)
             
         export_bt = ttk.Button(button_bar, text="Export⬆️", 
                                 command=self.export
-                                ).pack(side="left", padx=10)
+                                ).pack(side="left", padx=10, pady=5)
 
         table_cols = ('Title', 'Due Date', 'Priority', 'State')
         self.table = ttk.Treeview(self.todo_tab, 
@@ -140,6 +159,7 @@ class Todo_app:
         self.table.tag_configure("Medium", background="yellow")
         self.table.tag_configure("High", background="orange")
         self.table.tag_configure("Done", background="#94C748")
+        self.table.tag_configure("Overdue", background="red")
     
     def create_timer(self):
         """ Pomodoro Timer"""
@@ -211,14 +231,21 @@ class Todo_app:
     def refresh(self):
         """This method updates the table rows by removing everything
         then reinsert items from the list.""" 
+        current_date = dt.now().strftime("%d-%m-%Y")
+
         # Update table
         rows = self.table.get_children()
         for row in rows:
             self.table.delete(row)
         for i in range(len(self.tasks)):
             task = self.tasks[i]
-            value=(task["title"], task["due"], task["priority"], task["state"])
-            tag=(task["priority"] if task["state"] == "☐" else "Done")
+            value=(task['title'], task['due'], task['priority'], task['state'])
+            if task['state'] == "✅":
+                tag='Done'
+            elif task['due'] < current_date:
+                tag='Overdue'
+            else:
+                tag=task['priority']
             row_id = self.table.insert(
                 "", "end",
                 values=value,
@@ -257,12 +284,20 @@ class Todo_app:
             
                 completed_percent = int(100 * completed / (incompleted + completed))
             except ZeroDivisionError:
-                self.p_label['text'] = "0"
+                self.p_label['text'] = "0%"
                 self.progress['value'] = 0
             else:
                 self.p_label['text'] = f"{completed_percent}% Completed"
                 self.progress['value'] = completed_percent
-
+    
+    def validate_dt(self, date_text, date_format="%d-%m-%Y"):
+        try:
+            dt.strptime(date_text, date_format)
+            return True
+        except ValueError as e:
+            mb.showerror("Something went wrong", e)
+            return False
+    
     def add(self):
         """The method get the title an due date
         then validate the data, added the new task to the 
@@ -270,8 +305,10 @@ class Todo_app:
         title = self.title_entry.get()
         title.strip()
 
-        due_date = self.date_entry.get()
-        due_date.strip()
+        d = self.date_entry.get()
+        M = self.month_entry.get()
+        Y = self.year_entry.get()
+        due_date = f"{d}-{M}-{Y}"
 
         priority = self.priority_entry.get()
 
@@ -279,8 +316,7 @@ class Todo_app:
             mb.showerror("Missing input", "Title required")
             return
         
-        if not due_date:
-            mb.showerror("Missing Input", "No Due Date")
+        if not self.validate_dt(due_date):
             return
         
         self.tasks.append({
@@ -292,6 +328,8 @@ class Todo_app:
         
         self.refresh()
         self.date_entry.delete(0, tk.END)
+        self.month_entry.delete(0, tk.END)
+        self.year_entry.delete(0, tk.END)
         self.title_entry.delete(0, tk.END) 
 
     def remove(self):
@@ -384,10 +422,12 @@ class Todo_app:
         """The method get the category from the sort bar
         then use the sorted function to organise the list of tasks"""
         p_order = ['High', 'Medium', 'Low']
+
         sorting_rules = {
             #category : (key function for sorting, should reverse)
             'Name': (lambda task: task['title'], False),
-            #'Date': (),
+            'Due Date': (lambda task: dt.strptime(task['due'], '%d-%m-%Y'),False
+                        ),
             'Highest Priority': (lambda task: p_order.index(task['priority']), 
                                  False
                                 ),
@@ -396,7 +436,6 @@ class Todo_app:
                                 ),
             'Completed': (lambda task: task['state'], True),
             'Incomplete': (lambda task: task['state'], False),
-            #'Overdue': (),
             }
         category = self.sort_bar.get()
         rule = sorting_rules.get(category)
@@ -432,7 +471,10 @@ class Todo_app:
 
     def update_timer(self):
         try:
-            self.Duration = 3600 * int(self.hour.get()) + 60 * int(self.minute.get()) + int(self.second.get())
+            self.Duration = (3600 * int(self.hour.get()) + 
+                            60 * int(self.minute.get()) + 
+                            int(self.second.get())
+                            )
         except ValueError:
             return
         if self.timer_running == True:
@@ -449,9 +491,6 @@ class Todo_app:
                 self.set_time(f"{new_H:02d}", f"{new_M:02}", f"{new_S:02}")
                 self.root.after(1000, self.update_timer)
 
-
-
-        
     def pause(self):
         if self.timer_running == True:
             self.timer_running = False
