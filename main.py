@@ -402,7 +402,10 @@ class Todo_app:
     def export(self):
         """This method save a path to user choosing and write
         that like a csv file"""
-        new_path = filedialog.asksaveasfilename(filetypes=[("CSV file","*.csv")])
+        new_path = filedialog.asksaveasfilename(defaultextension=".csv",
+                                            filetypes=[("CSV files", "*.csv")],
+                                            title="Save File As CSV"
+        )
 
         if not new_path:
             return
