@@ -65,6 +65,17 @@ class Todo_app:
     
     def create_task_manager(self):
         """This method create all of the widget inside the task manager."""
+
+        SORT_CATE = ['Name', 'Due Date', 'Highest Priority', 'Lowest Priority', 
+                    'Completed', 'Incomplete'
+                    ]
+        DAYS = [d for d in range(1, 31+1)]
+        MONTH = [m for m in range(1, 12+1)]
+        P_ORDER = ['Low', 'Medium', 'High']
+        table_cols = ('Title', 'Due Date', 'Priority', 'State')
+        today = dt.now()
+
+        
         top = ttk.LabelFrame(self.todo_tab, text="➕ Add New Task")
         top.pack(fill="x", padx=10, pady=5)
 
@@ -75,7 +86,7 @@ class Todo_app:
         # Priority selector
         ttk.Label(top, text="Priority").grid(row=0, column=2, padx=5)
         self.priority_entry = ttk.Combobox(top, 
-                                           values=['Low', 'Medium', 'High'],
+                                           values=P_ORDER,
                                            state='readonly',
                                            )
         self.priority_entry.grid(row=0, column=3, padx=5, pady=5)
@@ -91,20 +102,23 @@ class Todo_app:
 
         ttk.Label(due_date_frame, text="DD:").pack(side="left", padx=5)
         self.date_entry = ttk.Combobox(due_date_frame, 
-                                       values=[d for d in range(1, 31+1)],
+                                       values= DAYS,
                                        width= 3)
         self.date_entry.pack(side="left", padx=5, pady=5)
+        self.date_entry.set(today.strftime("%d"))
         
         ttk.Label(due_date_frame, text="MM:").pack(side="left", padx=5)
         self.month_entry = ttk.Combobox(due_date_frame, 
-                                       values=[d for d in range(1, 12+1)],
+                                       values=MONTH,
                                        width= 3)
         self.month_entry.pack(side="left", padx=5, pady=5)
+        self.month_entry.set(today.strftime("%m"))
         
         ttk.Label(due_date_frame, text="YYYY:").pack(side="left", padx=5)
-        self.year_entry = ttk.Entry(due_date_frame, 
+        self.year_entry = ttk.Entry(due_date_frame,
                                     width=6)
         self.year_entry.pack(side="left", padx=5, pady=5)
+        self.year_entry.insert(0, today.strftime("%Y"))
 
         # add button
         self.add_bt = ttk.Button(top, text="✅Add Task", command=self.add)
@@ -124,9 +138,6 @@ class Todo_app:
                                    )
         delete_all_bt.pack(side="right", padx=10, pady=5)
         
-        SORT_CATE = ['Name', 'Due Date', 'Highest Priority', 'Lowest Priority', 
-                    'Completed', 'Incomplete'
-                    ]
         ttk.Label(button_bar, text="Sort by:").pack(side="left")
         self.sort_bar = ttk.Combobox(button_bar, values=SORT_CATE,
                                       state="readonly",
@@ -143,7 +154,6 @@ class Todo_app:
                                 command=self.export
                                 ).pack(side="left", padx=10, pady=5)
 
-        table_cols = ('Title', 'Due Date', 'Priority', 'State')
         self.table = ttk.Treeview(self.todo_tab, 
                                   columns= table_cols,
                                   show="headings",
@@ -291,6 +301,8 @@ class Todo_app:
                 self.progress['value'] = completed_percent
     
     def validate_dt(self, date_text, date_format="%d-%m-%Y"):
+        """The method check the date_text and compare it
+        to the date_format, return true false."""
         try:
             dt.strptime(date_text, date_format)
             return True
@@ -353,6 +365,8 @@ class Todo_app:
             return
         
     def combo_colour(self, event):
+        """This method get the style of the widget then changes it base
+        on the current value, used to indicate for the priority selector"""
         widget = event.widget
         current = widget.get()
         style_name = widget.cget("style")
@@ -405,7 +419,7 @@ class Todo_app:
         new_path = filedialog.asksaveasfilename(defaultextension=".csv",
                                             filetypes=[("CSV files", "*.csv")],
                                             title="Save File As CSV"
-        )
+                                               )
 
         if not new_path:
             return
@@ -456,7 +470,7 @@ class Todo_app:
             item = self.table.selection()[0]
 
         except IndexError:
-            # prevent program from returning data of label column
+            # prevent program from returning data of header column
             return
         
         else:
@@ -465,14 +479,16 @@ class Todo_app:
                     task["state"] = "✅" if task["state"] == "☐" else "☐"
 
         self.refresh()    
-        print("Marked done")
     
     def set_time(self, hour="00", minute="00", second="00"):
+        """This method set the time in the stringVar, default is 00"""
         self.hour.set(hour)
         self.minute.set(minute)
         self.second.set(second)
 
     def update_timer(self):
+        """This method get the duration then updates it every 1000millisecond
+        (1 second)."""
         try:
             self.Duration = (3600 * int(self.hour.get()) + 
                             60 * int(self.minute.get()) + 
@@ -483,8 +499,8 @@ class Todo_app:
         if self.timer_running == True:
             self.Duration -= 1
             if self.Duration < 0:
-                self.end_timer()
-                self.pause()
+                self.last_saved_t = 0
+                self.set_time("00", "00", "00")
                 mb.showinfo("Countdown Timer", "Time is up!")
             else:
                 new_H = self.Duration // 3600 #calculate hour w/ floor div
