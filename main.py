@@ -186,14 +186,16 @@ class Todo_app:
                              )
         self.hourEntry.place(x=210,y=75, width=120)
 
-        ttk.Label(self.timer_tab, width=3, font=FONT, text=":").place(x=350, y=75)
+        ttk.Label(self.timer_tab, width=3, 
+                  font=FONT, text=":").place(x=350, y=75)
 
         self.minuteEntry= ttk.Entry(self.timer_tab, width=3, font=FONT,
                                textvariable=self.minute
                                )
         self.minuteEntry.place(x=390, y=75, width=120)
 
-        ttk.Label(self.timer_tab, width=3, font=FONT, text=":").place(x=530,y=75)
+        ttk.Label(self.timer_tab, width=3, 
+                  font=FONT, text=":").place(x=530,y=75)
 
         self.secondEntry= ttk.Entry(self.timer_tab, width=3, font=FONT, 
                                textvariable=self.second
@@ -201,18 +203,24 @@ class Todo_app:
         self.secondEntry.place(x=570, y=75, width=120)
 
         # ▶  ⏸️
-        self.pause_bt = ttk.Button(self.timer_tab, text="▶", command=self.pause)
+        self.pause_bt = ttk.Button(self.timer_tab, text="▶", 
+                                   command=self.pause
+                                  )
         self.pause_bt.place(anchor="center", x=450, y=300)
 
-        skip_bt = ttk.Button(self.timer_tab, text="⏭", command=self.end_timer)
+        skip_bt = ttk.Button(self.timer_tab, text="Skip⏭", 
+                            command=self.end_timer
+                            )
         skip_bt.place(anchor="center", x=625, y=300)
 
-        restart_bt = ttk.Button(self.timer_tab, text="⟲", command=self.restart)
+        restart_bt = ttk.Button(self.timer_tab, text="Restart⟲", 
+                                command=self.restart
+                                )
         restart_bt.place(anchor="center", x=275, y=300)
 
 
         self.status_label = tk.Label(self.timer_tab, 
-                                     text=(f"Saved time:{self.last_saved_t}")
+                                     text=("Saved time for restart:0")
                                     )
         self.status_label.place(anchor="center", x=450, y=400)
 
@@ -248,7 +256,8 @@ class Todo_app:
             csv_writer = csv.writer(f)
             csv_writer.writerow(fieldnames)
             for task in self.tasks:
-                val = (task['due'], task['title'], task['id'], task['priority'], 
+                val = (task['due'], task['title'], 
+                       task['id'], task['priority'], 
                        task['state']
                        )
                 csv_writer.writerow(val)
@@ -270,7 +279,8 @@ class Todo_app:
                     incompleted += 1
             try:
             
-                completed_percent = int(100 * completed / (incompleted + completed))
+                completed_percent = int(100 * 
+                                        completed / (incompleted + completed))
             except ZeroDivisionError:
                 self.p_label['text'] = "0%"
                 self.progress['value'] = 0
@@ -421,12 +431,16 @@ class Todo_app:
         sorting_rules = {
             #category : (key function for sorting, should reverse)
             'Name': (lambda task: task['title'], False),
-            'Due Date': (lambda task: dt.strptime(task['due'], '%d-%m-%Y'),False
+            'Due Date': (
+                        lambda task: dt.strptime(task['due'], '%d-%m-%Y'),
+                        False
                         ),
-            'Highest Priority': (lambda task: p_order.index(task['priority']), 
+            'Highest Priority': (
+                                lambda task: p_order.index(task['priority']), 
                                  False
                                 ),
-            'Lowest Priority': (lambda task: p_order.index(task['priority']), 
+            'Lowest Priority': (
+                                lambda task: p_order.index(task['priority']), 
                                 True
                                 ),
             'Completed': (lambda task: task['state'], True),
@@ -437,7 +451,8 @@ class Todo_app:
 
         if rule:
             key_function, should_reverse = rule
-            self.tasks = sorted(self.tasks, key=key_function, reverse=should_reverse)
+            self.tasks = sorted(self.tasks, key=key_function, 
+                                reverse=should_reverse)
         self.refresh()
 
     def mark_done(self, event):
@@ -458,6 +473,13 @@ class Todo_app:
 
         self.refresh()    
     
+    def time_calc(self, total_t = int):
+        new_H = total_t // 3600
+        new_M = (total_t // 60) % 60
+        new_S = total_t % 60
+        return new_H, new_M, new_S
+
+    
     def set_time(self, hour="00", minute="00", second="00"):
         """This method set the time in the stringVar, default is 00"""
         self.hour.set(hour)
@@ -473,22 +495,18 @@ class Todo_app:
         self.Duration -= 1
 
         if self.Duration < 0:
-            self.timer_running = False
-            self.last_saved_t = 0
-            self.set_time("00", "00", "00")
-            self.enable_entries() 
-            self.pause_bt['text'] = "▶"
+            self.end_timer()
             mb.showinfo("Countdown Timer", "Time is up!")
             return
 
         # Calculate remaining time
-        new_H = self.Duration // 3600
-        new_M = (self.Duration // 60) % 60
-        new_S = self.Duration % 60
+        new_H, new_M, new_S = self.time_calc(self.Duration)
+        saved_H, saved_M, saved_S = self.time_calc(self.last_saved_t)
 
         # Update GUI
         self.set_time(f"{new_H:02d}", f"{new_M:02d}", f"{new_S:02d}")
-        self.status_label['text'] = f"Saved time:{self.last_saved_t}"
+        saved_T = f"Saved time: {saved_H:02d}:{saved_M:02d}:{saved_S:02d}"
+        self.status_label['text'] = saved_T
         
         # Schedule next tick
         self.root.after(1000, self.update_timer)
@@ -533,16 +551,15 @@ class Todo_app:
         self.set_time("00", "00", "00")
         self.enable_entries()
         self.pause_bt['text'] = "▶"
-        self.status_label['text'] = f"Saved time:{self.last_saved_t}"
+        self.status_label['text'] = f"Saved time: 00:00:00"
 
     def restart(self):
         """Resets the timer back to the original starting time."""
         self.timer_running = False
         self.Duration = self.last_saved_t
         
-        new_H = self.Duration // 3600
-        new_M = (self.Duration // 60) % 60
-        new_S = self.Duration % 60
+        new_H, new_M, new_S = self.time_calc(self.Duration)
+
         
         self.set_time(f"{new_H:02d}", f"{new_M:02d}", f"{new_S:02d}")
         self.enable_entries()
@@ -551,12 +568,13 @@ class Todo_app:
     def disable_entries(self):
         self.secondEntry['state'] = "readonly"
         self.minuteEntry['state'] = "readonly"
-        self.year_entry['state'] = "readonly"
+        self.hourEntry['state'] = "readonly"
     
     def enable_entries(self):
         self.secondEntry['state'] = "normal"
         self.minuteEntry['state'] = "normal"
-        self.year_entry['state'] = "normal"
+        self.hourEntry['state'] = "normal"
+    
 
 
 if __name__ == "__main__":
