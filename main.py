@@ -23,7 +23,7 @@ class Todo_app:
 
         self.tabs.add(self.dashboard_tab, text="Dashboard")
         self.tabs.add(self.todo_tab, text="To-Do List")
-        self.tabs.add(self.timer_tab, text="Pomodoro Timer")
+        self.tabs.add(self.timer_tab, text="Timer")
         self.tabs.pack(expand=True, fill="both")
         self.tabs.bind("<<NotebookTabChanged>>", self.calc_percent)
 
@@ -200,30 +200,6 @@ class Todo_app:
                                )
         self.secondEntry.place(x=570, y=75, width=120)
 
-        preset_short = tk.Radiobutton(self.timer_tab, text="Short",
-                                    value="Short", indicatoron=0, height=2, 
-                                    width=9, background="light blue", 
-                                    borderwidth=2, relief="solid",
-                                    command= lambda: self.set_time("00", "25") 
-                                      )
-        preset_short.place(anchor="center", x=275, y=250)
-
-        preset_long = tk.Radiobutton(self.timer_tab, text="Long", value="Long", 
-                                    indicatoron=0, background="light blue", 
-                                    height=2, width=9,
-                                    borderwidth=2, relief="solid",
-                                    command= lambda: self.set_time("01", "15")
-                                    )
-        preset_long.place(anchor="center", x=450, y=250)
-
-        custom = tk.Radiobutton(self.timer_tab, text="Custom",
-                                value="Custom", indicatoron=0,
-                                height=2, width=9,
-                                background="light blue", 
-                                borderwidth=2, relief="solid",
-                                command= lambda: self.set_time()
-                                )
-        custom.place(anchor="center", x=625, y=250)
         # ▶  ⏸️
         self.pause_bt = ttk.Button(self.timer_tab, text="▶", command=self.pause)
         self.pause_bt.place(anchor="center", x=450, y=300)
@@ -235,7 +211,9 @@ class Todo_app:
         restart_bt.place(anchor="center", x=275, y=300)
 
 
-        self.status_label = tk.Label(self.timer_tab, text="Status: On Break")
+        self.status_label = tk.Label(self.timer_tab, 
+                                     text=(f"Saved time:{self.last_saved_t}")
+                                    )
         self.status_label.place(anchor="center", x=450, y=400)
 
     def refresh(self):
@@ -487,57 +465,98 @@ class Todo_app:
         self.second.set(second)
 
     def update_timer(self):
-        """This method get the duration then updates it every 1000millisecond
-        (1 second)."""
-        try:
-            self.Duration = (3600 * int(self.hour.get()) + 
-                            60 * int(self.minute.get()) + 
-                            int(self.second.get())
-                            )
-        except ValueError:
+        """This method update the timer every 1 second"""
+        if not self.timer_running:
             return
-        if self.timer_running == True:
-            self.Duration -= 1
-            if self.Duration < 0:
-                self.last_saved_t = 0
-                self.set_time("00", "00", "00")
-                mb.showinfo("Countdown Timer", "Time is up!")
-            else:
-                new_H = self.Duration // 3600 #calculate hour w/ floor div
-                new_M = (self.Duration // 60) % 60 #calculate minute w/ modulus and floor div
-                new_S = self.Duration % 60 #calculate minute w/ modulus
-                print(f"Hour: {new_H}, Minute: {new_M}, Second: {new_S}")
-                self.set_time(f"{new_H:02d}", f"{new_M:02}", f"{new_S:02}")
-                self.root.after(1000, self.update_timer)
+
+        # Decrement the duration directly
+        self.Duration -= 1
+
+        if self.Duration < 0:
+            self.timer_running = False
+            self.last_saved_t = 0
+            self.set_time("00", "00", "00")
+            self.enable_entries() 
+            self.pause_bt['text'] = "▶"
+            mb.showinfo("Countdown Timer", "Time is up!")
+            return
+
+        # Calculate remaining time
+        new_H = self.Duration // 3600
+        new_M = (self.Duration // 60) % 60
+        new_S = self.Duration % 60
+
+        # Update GUI
+        self.set_time(f"{new_H:02d}", f"{new_M:02d}", f"{new_S:02d}")
+        self.status_label['text'] = f"Saved time:{self.last_saved_t}"
+        
+        # Schedule next tick
+        self.root.after(1000, self.update_timer)
+        
 
     def pause(self):
-        if self.timer_running == True:
+        """The method toggles between resume and pausing"""
+        """Handles starting, pausing, and resuming from a single button."""
+        # Case 1: Timer is running, Pause it
+        if self.timer_running:
             self.timer_running = False
             self.pause_bt['text'] = "▶"
-            self.secondEntry['state'] = 'normal'
-            self.minuteEntry['state'] = 'normal'
-            self.hourEntry['state'] = 'normal'
-        else:
-            self.timer_running = True
-            self.update_timer()
-            self.pause_bt['text'] = "⏸️"
-            self.secondEntry['state'] = 'readonly'
-            self.minuteEntry['state'] = 'readonly'
-            self.hourEntry['state'] = 'readonly'
-            self.last_saved_t = (3600 * int(self.hour.get()) + 
+            self.enable_entries()
+            return
+
+        # Case 2: Timer is stopped, and duration is 0,  Start a brand new timer
+        if self.Duration == 0:
+            try:
+                self.Duration = (3600 * int(self.hour.get()) + 
                                 60 * int(self.minute.get()) + 
-                                int(self.second.get()) + 1
-                                )
+                                int(self.second.get()))
+                self.last_saved_t = self.Duration 
+            except ValueError:
+                mb.showerror("Error", "Please enter valid numbers")
+                return
+
+            if self.Duration <= 0:
+                mb.showwarning("Warning", "Please set a time greater than 0")
+                return
+
+        # Case 3: Resuming a paused timer OR successfully started a new one
+        self.timer_running = True
+        self.disable_entries()
+        self.pause_bt['text'] = "⏸"
+        self.update_timer()
 
     def end_timer(self):
+        """Stops and resets the timer completely."""
+        self.timer_running = False
+        self.Duration = 0
         self.last_saved_t = 0
         self.set_time("00", "00", "00")
+        self.enable_entries()
+        self.pause_bt['text'] = "▶"
+        self.status_label['text'] = f"Saved time:{self.last_saved_t}"
 
     def restart(self):
-        new_H = self.last_saved_t // 3600 
-        new_M = (self.last_saved_t// 60) % 60 
-        new_S = self.last_saved_t % 60 
-        self.set_time(f"{new_H:02d}", f"{new_M:02}", f"{new_S:02}")
+        """Resets the timer back to the original starting time."""
+        self.timer_running = False
+        self.Duration = self.last_saved_t
+        
+        new_H = self.Duration // 3600
+        new_M = (self.Duration // 60) % 60
+        new_S = self.Duration % 60
+        
+        self.set_time(f"{new_H:02d}", f"{new_M:02d}", f"{new_S:02d}")
+        self.enable_entries()
+        self.pause_bt['text'] = "▶"
+    
+    def disable_entries(self):
+        self.secondEntry['state'] = "readonly"
+        self.minuteEntry['state'] = "readonly"
+        self.year_entry['state'] = "readonly"
+    
+    def enable_entries(self):
+        self.secondEntry['state'] = "normal"
+        self.minuteEntry['state'] = "normal"
+        self.year_entry['state'] = "normal"
 
 
 if __name__ == "__main__":
