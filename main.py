@@ -69,8 +69,8 @@ class Todo_app:
         SORT_CATE = ['Name', 'Due Date', 'Highest Priority', 'Lowest Priority', 
                     'Completed', 'Incomplete'
                     ]
-        DAYS = [d for d in range(1, 31+1)]
-        MONTH = [m for m in range(1, 12+1)]
+        DAYS = [f"{d:02d}" for d in range(1, 31+1)]
+        MONTH = [f"{m:02d}" for m in range(1, 12+1)]
         P_ORDER = ['Low', 'Medium', 'High']
         table_cols = ('Title', 'Due Date', 'Priority', 'State')
         today = dt.now()
