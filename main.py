@@ -1,6 +1,6 @@
-"""Something here"""
+"""This is a to-do program to let student keep track of their task"""
 
-# Declare Libraries
+# Libraries:
 import tkinter as tk
 from tkinter import ttk, messagebox as mb, filedialog
 import csv
@@ -9,7 +9,7 @@ from datetime import datetime as dt
 
 class Todo_app:
     def __init__(self, root):
-        """Intialise the root, set up the window's geometry and tabs"""
+        """Intialise the root, set up the window's geometry and tabs."""
         self.root = root
         self.root.title("ToDoApp")
         self.root.geometry("900x550")
@@ -72,13 +72,13 @@ class Todo_app:
     
     def create_task_manager(self):
         """This method create all of the widget inside the task manager."""
-        # Define values and list for combo-boxes and treeview
+        # Define values and list for combo-boxes and treeview:
         SORT_CATE = [
                 'Name', 'Due Date', 'Highest Priority', 'Lowest Priority', 
                 'Completed', 'Incomplete'
                     ]
-        DAYS = [f"{d:02d}" for d in range(1, 31+1)] # day 1-31
-        MONTH = [f"{m:02d}" for m in range(1, 12+1)] # month 1-12
+        DAYS = [f"{d:02d}" for d in range(1, 31+1)] # day 1-31.
+        MONTH = [f"{m:02d}" for m in range(1, 12+1)] # month 1-12.
         P_ORDER = ['Low', 'Medium', 'High']
         table_cols = ('Title', 'Due Date', 'Priority', 'State')
         today = dt.now()
@@ -90,7 +90,7 @@ class Todo_app:
         self.title_entry = ttk.Entry(top, width=30)
         self.title_entry.grid(row=0, column=1, padx=5, pady=5)
         
-        # Priority selector
+        # Priority selector.
         ttk.Label(top, text="Priority").grid(row=0, column=2, padx=5)
         self.priority_entry = ttk.Combobox(top, 
                                            values=P_ORDER,
@@ -102,7 +102,7 @@ class Todo_app:
         style_name_1 = f"Combo1_{id(self.priority_entry)}.TCombobox"
         self.priority_entry.configure(style=style_name_1)
         
-        # Create the Due Date entry so the user can choose date in dd-MM-YYYY
+        # Due Date entries so the user can choose date in dd-MM-YYYY.
         ttk.Label(top, text="Due Date:").grid(row=1, column=0, padx=5)
         due_date_frame = ttk.Frame(top)
         due_date_frame.grid(row=1, column=1, padx=5, pady=5)
@@ -131,7 +131,7 @@ class Todo_app:
         self.add_bt = ttk.Button(top, text="✅Add Task", command=self.add)
         self.add_bt.grid(row=1, column=3, padx=5, pady=5)
         
-        # delete, sort, import, export and configuring the treeview(table)
+        # delete, sort, import, export and configuring the treeview(table).
         button_bar = ttk.Frame(self.todo_tab)
         button_bar.pack(fill="x", padx=10, pady=5)
 
@@ -160,7 +160,7 @@ class Todo_app:
         export_bt = ttk.Button(button_bar, text="Export⬆️", 
                                 command=self.export
                                 ).pack(side="left", padx=10, pady=5)
-
+        
         self.table = ttk.Treeview(self.todo_tab, 
                                   columns= table_cols,
                                   show="headings",
@@ -170,10 +170,10 @@ class Todo_app:
             self.table.column(column, anchor="center")
         self.table.pack(fill="both", expand=True, padx=10)
 
-        # User can double click to mark a task done
+        # User can double click to mark a task done.
         self.table.bind("<Double-1>", self.mark_done)
 
-        # Colour code task based on priority
+        # Colour code task based on priority.
         self.table.tag_configure("Medium", background="yellow")
         self.table.tag_configure("High", background="orange")
         self.table.tag_configure("Done", background="#94C748")
@@ -181,7 +181,7 @@ class Todo_app:
     
     def create_timer(self):
         """Timer, which help user get tasks done"""
-        # Defining timing varibles
+        # Defining timing varibles:
         FONT = ("Segoe UI", 60, "bold")
         self.hour=tk.StringVar(value="00")
         self.minute=tk.StringVar(value="00")
@@ -190,15 +190,17 @@ class Todo_app:
         self.Duration = 0
         self.last_saved_t = 0
 
-        self.hourEntry= ttk.Entry(self.timer_tab, width=3, font=FONT, 
-                             textvariable=self.hour
-                             )
+        self.hourEntry= ttk.Entry(
+                                self.timer_tab, width=3, font=FONT, 
+                                textvariable=self.hour
+                                )
         self.hourEntry.place(x=210,y=75, width=120)
 
         ttk.Label(self.timer_tab, width=3, 
                   font=FONT, text=":").place(x=350, y=75)
 
-        self.minuteEntry= ttk.Entry(self.timer_tab, width=3, font=FONT,
+        self.minuteEntry= ttk.Entry(
+                               self.timer_tab, width=3, font=FONT,
                                textvariable=self.minute
                                )
         self.minuteEntry.place(x=390, y=75, width=120)
@@ -206,23 +208,27 @@ class Todo_app:
         ttk.Label(self.timer_tab, width=3, 
                   font=FONT, text=":").place(x=530,y=75)
 
-        self.secondEntry= ttk.Entry(self.timer_tab, width=3, font=FONT, 
+        self.secondEntry= ttk.Entry(
+                               self.timer_tab, width=3, font=FONT, 
                                textvariable=self.second
                                )
         self.secondEntry.place(x=570, y=75, width=120)
 
-        # The pause button should have it's text between ▶ and ⏸️
-        self.pause_bt = ttk.Button(self.timer_tab, text="Start▶", 
+        # The pause button should have it's text between ▶ and ⏸️ symbols.
+        self.pause_bt = ttk.Button(
+                                   self.timer_tab, text="Start▶", 
                                    command=self.pause
                                   )
         self.pause_bt.place(anchor="center", x=450, y=300)
 
-        skip_bt = ttk.Button(self.timer_tab, text="Skip⏭", 
+        skip_bt = ttk.Button(
+                            self.timer_tab, text="Skip⏭", 
                             command=self.end_timer
                             )
         skip_bt.place(anchor="center", x=625, y=300)
 
-        restart_bt = ttk.Button(self.timer_tab, text="Restart⟲", 
+        restart_bt = ttk.Button(
+                                self.timer_tab, text="Restart⟲", 
                                 command=self.restart
                                 )
         restart_bt.place(anchor="center", x=275, y=300)
@@ -230,7 +236,7 @@ class Todo_app:
         self.status_label = tk.Label(
                                 self.timer_tab, 
                                 text=("Saved time for restart:00:00:00")
-                                    )
+                                )
         self.status_label.place(anchor="center", x=450, y=400)
 
     def refresh(self):
@@ -330,6 +336,8 @@ class Todo_app:
         
         if not self.validate_dt(due_date):
             return
+        
+        
         
         self.tasks.append(
             {
