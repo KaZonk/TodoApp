@@ -1,9 +1,10 @@
 """Something here"""
+
+# Declare Libraries
 import tkinter as tk
 from tkinter import ttk, messagebox as mb, filedialog
 import csv
 from datetime import datetime as dt
-import time
 
 
 class Todo_app:
@@ -37,7 +38,7 @@ class Todo_app:
                              troughcolor='#ecf0f1'
                             )
         
-        # Create the UI, splitted into three functions
+        # Create the UI, splitted into three methods
         self.create_dashboard()
         self.create_task_manager()
         self.create_timer()
@@ -76,8 +77,8 @@ class Todo_app:
                 'Name', 'Due Date', 'Highest Priority', 'Lowest Priority', 
                 'Completed', 'Incomplete'
                     ]
-        DAYS = [f"{d:02d}" for d in range(1, 31+1)]
-        MONTH = [f"{m:02d}" for m in range(1, 12+1)]
+        DAYS = [f"{d:02d}" for d in range(1, 31+1)] # day 1-31
+        MONTH = [f"{m:02d}" for m in range(1, 12+1)] # month 1-12
         P_ORDER = ['Low', 'Medium', 'High']
         table_cols = ('Title', 'Due Date', 'Priority', 'State')
         today = dt.now()
@@ -235,7 +236,7 @@ class Todo_app:
     def refresh(self):
         """This method updates the table rows by removing everything
         then reinsert items from the list.""" 
-        current_date = dt.now().strftime("%d-%m-%Y")
+        current_date = dt.now()
 
         # Update table
         rows = self.table.get_children()
@@ -247,7 +248,7 @@ class Todo_app:
             value=(task['title'], task['due'], task['priority'], task['state'])
             if task['state'] == "✅":
                 tag='Done'
-            elif task['due'] < current_date:
+            elif dt.strptime(task['due'], "%d-%m-%Y") < current_date:               
                 tag='Overdue'
             else:
                 tag=task['priority']
@@ -340,9 +341,9 @@ class Todo_app:
         )
         
         self.refresh()
+        # Clear every entry except for year
         self.date_entry.delete(0, tk.END)
         self.month_entry.delete(0, tk.END)
-        self.year_entry.delete(0, tk.END)
         self.title_entry.delete(0, tk.END) 
 
     def remove(self):
@@ -441,16 +442,25 @@ class Todo_app:
 
     def sort(self, event):
         """The method get the category from the sort bar
-        then use the sorted function to organise the list of tasks"""
+        then use sorted() to organise the list of tasks"""
         p_order = ['High', 'Medium', 'Low']
         sorting_rules = {
-         # Category dictioned with a sorting rule and true/false for reverse
-         'Name': (lambda task: task['title'], False),
-         'Due Date': (lambda task: dt.strptime(task['due'], '%d-%m-%Y'), False),
-         'Highest Priority': (lambda task: p_order.index(task['priority']), False),
-         'Lowest Priority': (lambda task: p_order.index(task['priority']), True),
-         'Completed': (lambda task: task['state'], True),
-         'Incomplete': (lambda task: task['state'], False),
+            # Category: (sorting key, true/false to reverses order)
+            'Name':             (lambda task: task['title'], False),
+            'Due Date':         (
+                             lambda task: dt.strptime(task['due'], '%d-%m-%Y'),
+                             False
+                                ),
+            'Highest Priority': (
+                                lambda task: p_order.index(task['priority']), 
+                                False
+                                ),
+            'Lowest Priority':  (
+                                lambda task: p_order.index(task['priority']),
+                                True
+                                ),
+            'Completed':        (lambda task: task['state'], True),
+            'Incomplete':       (lambda task: task['state'], False),
                         }
         category = self.sort_bar.get()
         rule = sorting_rules.get(category)
@@ -473,10 +483,11 @@ class Todo_app:
             for task in self.tasks:
                 if task.get("id") == item:
                     task["state"] = "✅" if task["state"] == "☐" else "☐"
-
         self.refresh()    
     
     def time_calc(self, total_t = int):
+        """The method calculate the amount of hour, minute, second to display
+        using floor division and modulus."""
         new_H = total_t // 3600
         new_M = (total_t // 60) % 60
         new_S = total_t % 60
@@ -494,10 +505,10 @@ class Todo_app:
         if not self.timer_running:
             return
 
-        # Decrement the duration directly
         self.Duration -= 1
 
         if self.Duration < 0:
+            # end timer when duration is zero
             self.end_timer()
             mb.showinfo("Countdown Timer", "Time is up!")
             return
@@ -511,20 +522,20 @@ class Todo_app:
         saved_T = f"Saved time: {saved_H:02d}:{saved_M:02d}:{saved_S:02d}"
         self.status_label['text'] = saved_T
         
-        # Schedule next tick
+        # Schedule next update
         self.root.after(1000, self.update_timer)
         
 
     def pause(self):
-        """The method toggles between resume and pausing"""
-        """Handles starting, pausing, and resuming from a single button."""
+        """The method toggles between resume and pausing.
+        Handles starting, pausing, and resuming."""
         # Case 1: Timer is running, Pause it
         if self.timer_running:
             self.timer_running = False
             self.pause_bt['text'] = "▶"
             return
 
-        # Case 2: Timer is stopped, and duration is 0,  Start a brand new timer
+        # Case 2: Timer is stopped, and duration is 0,  Start a new timer
         if self.Duration == 0:
             try:
                 self.Duration = (3600 * int(self.hour.get()) + 
@@ -559,15 +570,16 @@ class Todo_app:
         self.Duration = self.last_saved_t
         new_H, new_M, new_S = self.time_calc(self.Duration)
         self.set_time(f"{new_H:02d}", f"{new_M:02d}", f"{new_S:02d}")
-        self.enable_entries()
         self.pause_bt['text'] = "▶"
     
     def disable_entries(self):
+        """User will not be able to input the time"""
         self.secondEntry['state'] = "readonly"
         self.minuteEntry['state'] = "readonly"
         self.hourEntry['state'] = "readonly"
     
     def enable_entries(self):
+        """User will be able to input time"""
         self.secondEntry['state'] = "normal"
         self.minuteEntry['state'] = "normal"
         self.hourEntry['state'] = "normal"
