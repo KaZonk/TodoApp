@@ -4,7 +4,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox as mb, filedialog
 import csv
-from datetime import datetime as dt, date
+from datetime import datetime as dt, date, timedelta
 
 
 class Todo_app:
@@ -328,6 +328,9 @@ class Todo_app:
         M = self.month_entry.get()
         Y = self.year_entry.get()
         due_date = f"{d}-{M}-{Y}"
+        parsed_due_date = dt.strptime(due_date, "%d-%m-%Y").date() 
+        today = dt.now().date()
+        max_future_due = today + timedelta(days=180)
 
         priority = self.priority_entry.get()
 
@@ -338,7 +341,15 @@ class Todo_app:
         if not self.validate_dt(due_date):
             return
         
-        # Need to validate the date so that user can't put past date
+        if parsed_due_date < today:
+            mb.showerror("Error", "Cannot input due date in the past")
+            return
+        
+        if parsed_due_date > max_future_due:
+            mb.showerror("Date too Far", 
+                         "This due date exceeed 180 days in the future")
+            return
+    
         
         self.tasks.append(
             {
