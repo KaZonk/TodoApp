@@ -4,7 +4,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox as mb, filedialog
 import csv
-from datetime import datetime as dt
+from datetime import datetime as dt, date
 
 
 class Todo_app:
@@ -242,7 +242,7 @@ class Todo_app:
     def refresh(self):
         """This method updates the table rows by removing everything
         then reinsert items from the list.""" 
-        current_date = dt.now()
+        current_date = dt.now().date()
 
         # Update table
         rows = self.table.get_children()
@@ -252,9 +252,10 @@ class Todo_app:
             # Get each task from the big list and insert the value to the table
             task = self.tasks[i]
             value=(task['title'], task['due'], task['priority'], task['state'])
+            parsed_due_date = dt.strptime(task['due'], "%d-%m-%Y").date() 
             if task['state'] == "✅":
                 tag='Done'
-            elif dt.strptime(task['due'], "%d-%m-%Y") < current_date:               
+            elif parsed_due_date < current_date:               
                 tag='Overdue'
             else:
                 tag=task['priority']
@@ -300,7 +301,7 @@ class Todo_app:
                                         * completed 
                                         / (incompleted + completed))
             except ZeroDivisionError:
-                self.p_label['text'] = "0%"
+                self.p_label['text'] = "0% tasks completed"
                 self.progress['value'] = 0
             else:
                 self.p_label['text'] = f"{completed_percent}% Completed"
@@ -337,7 +338,7 @@ class Todo_app:
         if not self.validate_dt(due_date):
             return
         
-        
+        # Need to validate the date so that user can't put past date
         
         self.tasks.append(
             {
