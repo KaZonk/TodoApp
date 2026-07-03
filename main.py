@@ -98,7 +98,7 @@ class Todo_app:
                                            )
         self.priority_entry.grid(row=0, column=3, padx=5, pady=5)
         self.priority_entry.current(0)
-        self.priority_entry.bind("<<ComboboxSelected>>", self.combo_colour)
+        self.priority_entry.bind("<<ComboboxSelected>>", self.remove_highlight)
         style_name_1 = f"Combo1_{id(self.priority_entry)}.TCombobox"
         self.priority_entry.configure(style=style_name_1)
         
@@ -113,6 +113,7 @@ class Todo_app:
                                        width= 3)
         self.date_entry.pack(side="left", padx=5, pady=5)
         self.date_entry.set(today.strftime("%d"))
+        self.date_entry.bind("<<ComboboxSelected>>", self.remove_highlight)
         
         ttk.Label(due_date_frame, text="MM:").pack(side="left", padx=5)
         self.month_entry = ttk.Combobox(due_date_frame, 
@@ -120,6 +121,7 @@ class Todo_app:
                                        width= 3)
         self.month_entry.pack(side="left", padx=5, pady=5)
         self.month_entry.set(today.strftime("%m"))
+        self.month_entry.bind("<<ComboboxSelected>>", self.remove_highlight)
         
         ttk.Label(due_date_frame, text="YYYY:").pack(side="left", padx=5)
         self.year_entry = ttk.Entry(due_date_frame,
@@ -147,7 +149,7 @@ class Todo_app:
         
         ttk.Label(button_bar, text="Sort by:").pack(side="left")
         self.sort_bar = ttk.Combobox(button_bar, values=SORT_CATE,
-                                      state="readonly",
+                                    state="readonly"
                                      )
         self.sort_bar.pack(side="left", padx=10, pady=5)
         self.sort_bar.current(0)
@@ -252,10 +254,11 @@ class Todo_app:
             # Get each task from the big list and insert the value to the table
             task = self.tasks[i]
             value=(task['title'], task['due'], task['priority'], task['state'])
-            parsed_due_date = dt.strptime(task['due'], "%d-%m-%Y").date() 
+            due_date = dt.strptime(task['due'], "%d-%m-%Y").date() 
             if task['state'] == "✅":
                 tag='Done'
-            elif parsed_due_date < current_date:               
+            elif due_date < current_date:
+                # due_date converted to datetime-type               
                 tag='Overdue'
             else:
                 tag=task['priority']
@@ -323,6 +326,7 @@ class Todo_app:
         being added to the table via refresh()"""
         title = self.title_entry.get()
         title.strip()
+        MAX_FUTURE_DATE = 360
 
         d = self.date_entry.get()
         M = self.month_entry.get()
@@ -330,7 +334,7 @@ class Todo_app:
         due_date = f"{d}-{M}-{Y}"
         parsed_due_date = dt.strptime(due_date, "%d-%m-%Y").date() 
         today = dt.now().date()
-        max_future_due = today + timedelta(days=180)
+        max_due_date = today + timedelta(days=MAX_FUTURE_DATE)
 
         priority = self.priority_entry.get()
 
@@ -345,9 +349,12 @@ class Todo_app:
             mb.showerror("Error", "Cannot input due date in the past")
             return
         
-        if parsed_due_date > max_future_due:
-            mb.showerror("Date too Far", 
-                         "This due date exceeed 180 days in the future")
+        if parsed_due_date > max_due_date:
+            mb.showerror(
+                        "Date too Far", 
+                         f"This due date exceeed {MAX_FUTURE_DATE}"
+                         " days in the future, please input a sonner date"
+                         )
             return
     
         
@@ -385,12 +392,12 @@ class Todo_app:
         else:
             return
         
-    def combo_colour(self, event):
-        """This method get the style of the widget then changes it base
-        on the current value, used to indicate for the priority selector"""
-        widget = event.widget
-        current = widget.get()
-        style_name = widget.cget("style")
+    def remove_highlight(self, event):
+        """This method change the field colour of the combo boxes
+        and remove it's highlight"""
+        event.widget.selection_clear()
+        current = event.widget.get()
+        style_name = event.widget.cget("style")
         if current == "High":
             bg_color = "orange"
         elif current == "Medium":
@@ -400,7 +407,9 @@ class Todo_app:
         
         self.style.map(style_name, 
                     fieldbackground=[('readonly', bg_color)],
-                    background=[('readonly', bg_color)])
+                    background=[('readonly', bg_color)],
+                    foreground=[('readonly', 'black')]
+                    )
 
     def load(self, Path=None):
         """This method open the path then take the information from the provided
