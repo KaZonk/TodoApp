@@ -85,7 +85,8 @@ class Todo_app:
 
         top = ttk.LabelFrame(self.todo_tab, text="➕ Add New Task")
         top.pack(fill="x", padx=10, pady=5)
-
+        
+        # Title entry
         ttk.Label(top, text="Title").grid(row=0, column=0, padx=5)
         self.title_entry = ttk.Entry(top, width=30)
         self.title_entry.grid(row=0, column=1, padx=5, pady=5)
@@ -107,6 +108,7 @@ class Todo_app:
         due_date_frame = ttk.Frame(top)
         due_date_frame.grid(row=1, column=1, padx=5, pady=5)
 
+        # Date entry 
         ttk.Label(due_date_frame, text="DD:").pack(side="left", padx=5)
         self.date_entry = ttk.Combobox(due_date_frame, 
                                        values= DAYS,
@@ -115,6 +117,7 @@ class Todo_app:
         self.date_entry.set(today.strftime("%d"))
         self.date_entry.bind("<<ComboboxSelected>>", self.remove_highlight)
         
+        # Month Entry
         ttk.Label(due_date_frame, text="MM:").pack(side="left", padx=5)
         self.month_entry = ttk.Combobox(due_date_frame, 
                                        values=MONTH,
@@ -123,6 +126,7 @@ class Todo_app:
         self.month_entry.set(today.strftime("%m"))
         self.month_entry.bind("<<ComboboxSelected>>", self.remove_highlight)
         
+        # Year entry
         ttk.Label(due_date_frame, text="YYYY:").pack(side="left", padx=5)
         self.year_entry = ttk.Entry(due_date_frame,
                                     width=6)
@@ -136,7 +140,7 @@ class Todo_app:
         # delete, sort, import, export and configuring the treeview(table).
         button_bar = ttk.Frame(self.todo_tab)
         button_bar.pack(fill="x", padx=10, pady=5)
-
+        
         delete_bt = ttk.Button(button_bar, text="✖️Delete"
                                ,command=self.remove
                                )
@@ -147,6 +151,7 @@ class Todo_app:
                                    )
         delete_all_bt.pack(side="right", padx=10, pady=5)
         
+        # Sorting
         ttk.Label(button_bar, text="Sort by:").pack(side="left")
         self.sort_bar = ttk.Combobox(button_bar, values=SORT_CATE,
                                     state="readonly"
@@ -254,11 +259,11 @@ class Todo_app:
             # Get each task from the big list and insert the value to the table
             task = self.tasks[i]
             value=(task['title'], task['due'], task['priority'], task['state'])
+            # Convert due_date to datetime-type object
             due_date = dt.strptime(task['due'], "%d-%m-%Y").date() 
             if task['state'] == "✅":
                 tag='Done'
-            elif due_date < current_date:
-                # due_date converted to datetime-type               
+            elif due_date < current_date:            
                 tag='Overdue'
             else:
                 tag=task['priority']
@@ -284,14 +289,12 @@ class Todo_app:
 
     def calc_percent(self, event = None):
         """The method make sure the cursor isn't automatically
-        highlight entry box w/ focus_set(). It also calculate the percentage 
-        of completed task if clicked on the dashboard(frame0)"""
+        highlight entry box and calculate percentage of tasks completed"""
         event.widget.focus_set()
         dashboard = '.!notebook.!frame'
         completed = 0
         incompleted = 0
 
-        # Calculate the percentage
         current_tab = self.tabs.select()
         if current_tab == dashboard:
             for task in self.tasks:
@@ -312,9 +315,8 @@ class Todo_app:
     
     def add(self):
         """The method get the title, due date
-        then validate the data. It is added to the list before
-        being added to the table via refresh()"""
-        # declaring constants and other varibles.
+        then validate them. It is added to the list before
+        being added to the table."""
         title = self.title_entry.get()
         priority = self.priority_entry.get()
         title.strip()
@@ -343,11 +345,12 @@ class Todo_app:
                                                   )
             }
 
-            # Find the first failing check (True key), if any
+            # Find the first True key, if any
             if error := validator.get(True):
                 return mb.showerror(*error)
 
         except ValueError as e:
+            # Return incorrect datetime format
             return mb.showerror("Something went wrong", str(e))
         
         # Append task
@@ -361,19 +364,31 @@ class Todo_app:
         )
         
         self.refresh()
-        # Clear every entry except for year
-        self.date_entry.delete(0, tk.END)
-        self.month_entry.delete(0, tk.END)
+        # Clear Title
         self.title_entry.delete(0, tk.END) 
 
     def remove(self):
         """This method get the ID from the selected row in the table. 
         Then it compare the ID to tasks and remove matches task"""
-        for item in self.table.selection():
-            for task in self.tasks:
-                if task.get("id") == item:
-                    self.tasks.remove(task)
-        self.refresh()
+        selected_task = self.table.selection()
+        no_selected = len(self.table.selection())
+        
+        # Warning if user delete more than 3 tasks simultaneously 
+        if no_selected >= 3:
+            message = ("You are deleting 3 tasks or more, "
+                        "Are you sure you want to proceed?")
+            if not mb.askyesno("Warning", message):
+                return
+        
+        # Delete tasks logic
+        if no_selected > 0:
+            for item in selected_task:
+                    for task in self.tasks:
+                        if task.get("id") == item:
+                            self.tasks.remove(task)
+            self.refresh()
+        
+        
 
     def clear_all(self):
         """The Method ask a confirmation before deleting everything 
@@ -408,8 +423,7 @@ class Todo_app:
         """This method open the path then take the information from the provided
         file path.
         If there is no Path(default none) provided, the method ask for one.
-        If there is path provided, the method attempt to write it, return
-        error if it is not correctly syntax."""
+        If there is path provided, the method write it into the files"""
         if Path is None:
             Path = filedialog.askopenfilename(filetypes=[("CSV file","*.csv")]
                                              )
@@ -595,13 +609,15 @@ class Todo_app:
         self.pause_bt['text'] = "▶"
     
     def disable_entries(self):
-        """User will not be able to input the time"""
+        """Disable the time entries so the user 
+        WILL NOT be able to input the time"""
         self.secondEntry['state'] = "readonly"
         self.minuteEntry['state'] = "readonly"
         self.hourEntry['state'] = "readonly"
     
     def enable_entries(self):
-        """User will be able to input time"""
+        """Enable the time entries so the user 
+        WILL be able to input time"""
         self.secondEntry['state'] = "normal"
         self.minuteEntry['state'] = "normal"
         self.hourEntry['state'] = "normal"
