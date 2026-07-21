@@ -310,54 +310,47 @@ class Todo_app:
                 self.p_label['text'] = f"{completed_percent}% Completed"
                 self.progress['value'] = completed_percent
     
-    def validate_dt(self, date_text, date_format="%d-%m-%Y"):
-        """The method check the date_text and compare it
-        to the date_format, return true false."""
-        try:
-            dt.strptime(date_text, date_format)
-            return True
-        except ValueError as e:
-            mb.showerror("Something went wrong", e)
-            return False
-    
     def add(self):
         """The method get the title, due date
         then validate the data. It is added to the list before
         being added to the table via refresh()"""
+        # declaring constants and other varibles.
         title = self.title_entry.get()
+        priority = self.priority_entry.get()
         title.strip()
         MAX_FUTURE_DATE = 360
-
         d = self.date_entry.get()
         M = self.month_entry.get()
         Y = self.year_entry.get()
         due_date = f"{d}-{M}-{Y}"
-        parsed_due_date = dt.strptime(due_date, "%d-%m-%Y").date() 
         today = dt.now().date()
         max_due_date = today + timedelta(days=MAX_FUTURE_DATE)
 
-        priority = self.priority_entry.get()
+        # Validate datetime and title
+        try:
+            parsed_due_date = dt.strptime(due_date, "%d-%m-%Y").date() 
 
-        if not title:
-            mb.showerror("Missing input", "Title required")
-            return
+            validator = {
+                (not title): ("Missing Input", "Please input a title"),
+                (parsed_due_date < today): (
+                                        "Error", 
+                                        "Cannot input due date in the past"
+                                           ),
+                (parsed_due_date > max_due_date): (
+                                "Date too Far", 
+                                f"This due date exceeds {MAX_FUTURE_DATE} days"
+                                " in the future, please input a sooner date."
+                                                  )
+            }
+
+            # Find the first failing check (True key), if any
+            if error := validator.get(True):
+                return mb.showerror(*error)
+
+        except ValueError as e:
+            return mb.showerror("Something went wrong", str(e))
         
-        if not self.validate_dt(due_date):
-            return
-        
-        if parsed_due_date < today:
-            mb.showerror("Error", "Cannot input due date in the past")
-            return
-        
-        if parsed_due_date > max_due_date:
-            mb.showerror(
-                        "Date too Far", 
-                         f"This due date exceeed {MAX_FUTURE_DATE}"
-                         " days in the future, please input a sonner date"
-                         )
-            return
-    
-        
+        # Append task
         self.tasks.append(
             {
             "title":    title,
