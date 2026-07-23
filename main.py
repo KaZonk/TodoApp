@@ -192,36 +192,32 @@ class Todo_app:
         """Timer, which help user get tasks done"""
         # Defining timing varibles:
         FONT = ("Segoe UI", 60, "bold")
-        self.hour=tk.StringVar(value="00")
-        self.minute=tk.StringVar(value="00")
-        self.second=tk.StringVar(value="00")
         self.timer_running = False
         self.Duration = 0
         self.last_saved_t = 0
+        S = [f"{s:02d}" for s in range(0, 60+1)]
+        M = [f"{m:02d}" for m in range(0, 60+1)]
+        H = [f"{h:02d}" for h in range(0, 24+1)]
 
-        self.hourEntry= ttk.Entry(
-                                self.timer_tab, width=3, font=FONT, 
-                                textvariable=self.hour
-                                )
+        self.hourEntry= ttk.Combobox(self.timer_tab, width=3, values=H, state='readonly', font=FONT)
         self.hourEntry.place(x=210,y=75, width=120)
+        self.hourEntry.bind("<<ComboboxSelected>>", self.remove_highlight)
 
         ttk.Label(self.timer_tab, width=3, 
                   font=FONT, text=":").place(x=350, y=75)
-
-        self.minuteEntry= ttk.Entry(
-                               self.timer_tab, width=3, font=FONT,
-                               textvariable=self.minute
+        self.minuteEntry= ttk.Combobox(self.timer_tab, width=3, values=M, state='readonly', font=FONT
                                )
         self.minuteEntry.place(x=390, y=75, width=120)
+        self.minuteEntry.bind("<<ComboboxSelected>>", self.remove_highlight)
 
         ttk.Label(self.timer_tab, width=3, 
                   font=FONT, text=":").place(x=530,y=75)
 
-        self.secondEntry= ttk.Entry(
-                               self.timer_tab, width=3, font=FONT, 
-                               textvariable=self.second
+        self.secondEntry= ttk.Combobox(
+                               self.timer_tab, width=3, values=S, state='readonly', font=FONT
                                )
         self.secondEntry.place(x=570, y=75, width=120)
+        self.secondEntry.bind("<<ComboboxSelected>>", self.remove_highlight)
 
         # The pause button should have it's text between ▶ and ⏸️ symbols.
         self.pause_bt = ttk.Button(
