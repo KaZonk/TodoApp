@@ -14,7 +14,8 @@ class Todo_app:
         self.root.title("ToDoApp")
         self.root.geometry("900x550")
         self.root.resizable(width=False, height=False)
-
+        
+        # Create the 3 tabs
         self.tabs = ttk.Notebook(root)
         self.dashboard_tab = ttk.Frame(self.tabs)
         self.todo_tab = ttk.Frame(self.tabs)
@@ -22,7 +23,8 @@ class Todo_app:
         
         self.tasks = []
         self.PATH = "todo_file.csv"
-
+        
+        # Give a task name and pack it
         self.tabs.add(self.dashboard_tab, text="Dashboard")
         self.tabs.add(self.todo_tab, text="To-Do List")
         self.tabs.add(self.timer_tab, text="Timer")
@@ -91,7 +93,7 @@ class Todo_app:
         self.title_entry = ttk.Entry(top, width=30)
         self.title_entry.grid(row=0, column=1, padx=5, pady=5)
         
-        # Priority selector.
+        # Priority selector with a unique style ID
         ttk.Label(top, text="Priority").grid(row=0, column=2, padx=5)
         self.priority_entry = ttk.Combobox(top, 
                                            values=P_ORDER,
@@ -151,7 +153,7 @@ class Todo_app:
                                    )
         delete_all_bt.pack(side="right", padx=10, pady=5)
         
-        # Sorting
+        # Sorting method
         ttk.Label(button_bar, text="Sort by:").pack(side="left")
         self.sort_bar = ttk.Combobox(button_bar, values=SORT_CATE,
                                     state="readonly"
@@ -438,8 +440,7 @@ class Todo_app:
                     task_id = line['id']
                     if line['id'] not in exist_id:
                         self.tasks.append(
-                                        {
-                                        "title":  line['title'],
+                                        {"title":  line['title'],
                                         "due":   line['due'],
                                         "id":     task_id,
                                         "priority": line['priority'],
@@ -482,21 +483,18 @@ class Todo_app:
         p_order = ['High', 'Medium', 'Low']
         sorting_rules = {
             # Category: (sorting key, true/false to reverses order)
-            'Name':             (lambda task: task['title'], False),
-            'Due Date':         (
-                             lambda task: dt.strptime(task['due'], '%d-%m-%Y'),
-                             False
-                                ),
-            'Highest Priority': (
-                                lambda task: p_order.index(task['priority']), 
+            'Name': (lambda task: task['title'], False),
+            'Due Date': (lambda task: dt.strptime(task['due'], '%d-%m-%Y'),
+                        False
+                        ),
+            'Highest Priority': (lambda task: p_order.index(task['priority']), 
                                 False
                                 ),
-            'Lowest Priority':  (
-                                lambda task: p_order.index(task['priority']),
+            'Lowest Priority': (lambda task: p_order.index(task['priority']),
                                 True
                                 ),
-            'Completed':        (lambda task: task['state'], True),
-            'Incomplete':       (lambda task: task['state'], False),
+            'Completed': (lambda task: task['state'], True),
+            'Incomplete': (lambda task: task['state'], False),
                         }
         category = self.sort_bar.get()
         rule = sorting_rules.get(category)
@@ -520,21 +518,6 @@ class Todo_app:
                 if task.get("id") == item:
                     task["state"] = "✅" if task["state"] == "☐" else "☐"
         self.refresh()    
-    
-    def time_calc(self, total_t = int):
-        """The method calculate the amount of hour, minute, second to display
-        using floor division and modulus."""
-        new_H = total_t // 3600
-        new_M = (total_t // 60) % 60
-        new_S = total_t % 60
-        return new_H, new_M, new_S
-
-    
-    def set_time(self, hour="00", minute="00", second="00"):
-        """This method set the time in the stringVar, default is 00"""
-        self.hour.set(hour)
-        self.minute.set(minute)
-        self.second.set(second)
 
     def update_timer(self):
         """This method update the timer every 1 second"""
@@ -571,12 +554,22 @@ class Todo_app:
             self.pause_bt['text'] = "▶"
             return
 
-        # Case 2: Timer is stopped, and duration is 0,  Start a new timer
+        # Case 2: Timer is finished, start a new timer
         if self.Duration == 0:
+            H = self.hour.get()
+            M = self.minute.get()
+            S = self.second.get()
+            # Validate length of timer input to 2 character
+            if len(str(H)) > 2 or len(str(M)) > 2 or len(str(S)) > 2:
+                timer_mess = "Error, you cannot enter more than two characters"
+                self.set_time() # reset to 00:00:00
+                mb.showerror("Input Error", timer_mess)
+                return
             try:
-                self.Duration = (3600 * int(self.hour.get()) + 
-                                60 * int(self.minute.get()) + 
-                                int(self.second.get()))
+                self.Duration = (3600 * int(H) 
+                                + 60 * int(M) 
+                                + int(S)
+                                )
                 self.last_saved_t = self.Duration 
             except ValueError:
                 mb.showerror("Error", "Please enter valid numbers")
@@ -622,8 +615,20 @@ class Todo_app:
         self.minuteEntry['state'] = "normal"
         self.hourEntry['state'] = "normal"
     
+    def time_calc(self, total_t = int):
+        """The method calculate the amount of hour, minute, second to display
+        using floor division and modulus."""
+        new_H = total_t // 3600
+        new_M = (total_t // 60) % 60
+        new_S = total_t % 60
+        return new_H, new_M, new_S
 
-
+    def set_time(self, hour="00", minute="00", second="00"):
+        """This method set the time in the stringVar, default is 00"""
+        self.hour.set(hour)
+        self.minute.set(minute)
+        self.second.set(second)
+    
 if __name__ == "__main__":
     root = tk.Tk()
     app = Todo_app(root)
