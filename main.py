@@ -199,25 +199,31 @@ class Todo_app:
         M = [f"{m:02d}" for m in range(0, 60+1)]
         H = [f"{h:02d}" for h in range(0, 24+1)]
 
-        self.hourEntry= ttk.Combobox(self.timer_tab, width=3, values=H, state='readonly', font=FONT)
+        self.hourEntry= ttk.Combobox(self.timer_tab, width=3, values=H, 
+                                    state='readonly', font=FONT)
         self.hourEntry.place(x=210,y=75, width=120)
         self.hourEntry.bind("<<ComboboxSelected>>", self.remove_highlight)
+        self.hourEntry.set("00")
 
         ttk.Label(self.timer_tab, width=3, 
                   font=FONT, text=":").place(x=350, y=75)
-        self.minuteEntry= ttk.Combobox(self.timer_tab, width=3, values=M, state='readonly', font=FONT
+        self.minuteEntry= ttk.Combobox(self.timer_tab, width=3, values=M, 
+                                        state='readonly', font=FONT
                                )
         self.minuteEntry.place(x=390, y=75, width=120)
         self.minuteEntry.bind("<<ComboboxSelected>>", self.remove_highlight)
+        self.minuteEntry.set("00")
 
         ttk.Label(self.timer_tab, width=3, 
                   font=FONT, text=":").place(x=530,y=75)
 
         self.secondEntry= ttk.Combobox(
-                               self.timer_tab, width=3, values=S, state='readonly', font=FONT
+                               self.timer_tab, width=3, values=S, 
+                               state='readonly', font=FONT
                                )
         self.secondEntry.place(x=570, y=75, width=120)
         self.secondEntry.bind("<<ComboboxSelected>>", self.remove_highlight)
+        self.secondEntry.set("00")
 
         # The pause button should have it's text between ▶ and ⏸️ symbols.
         self.pause_bt = ttk.Button(
@@ -621,9 +627,9 @@ class Todo_app:
 
     def set_time(self, hour="00", minute="00", second="00"):
         """This method set the time in the stringVar, default is 00"""
-        self.hour.set(hour)
-        self.minute.set(minute)
-        self.second.set(second)
+        self.hourEntry.set(hour)
+        self.minuteEntry.set(minute)
+        self.secondEntry.set(second)
     
 if __name__ == "__main__":
     root = tk.Tk()
