@@ -1,4 +1,4 @@
-"""This is a to-do program to let student keep track of their task"""
+"""This is a to-do program to let student keep track of their task."""
 
 # Libraries:
 import tkinter as tk
@@ -7,20 +7,20 @@ import csv
 from datetime import datetime as dt, date, timedelta
 
 
-class Todo_app:
+class TodoApp:
     def __init__(self, root):
         """Intialise the root, set up the window's geometry and tabs."""
         self.root = root
         self.root.title("ToDoApp")
         self.root.geometry("900x550")
         self.root.resizable(width=False, height=False)
-        
+
         # Create the 3 tabs
         self.tabs = ttk.Notebook(root)
         self.dashboard_tab = ttk.Frame(self.tabs)
         self.todo_tab = ttk.Frame(self.tabs)
         self.timer_tab = ttk.Frame(self.tabs)
-        
+
         self.tasks = []
         self.PATH = "todo_file.csv"
         
@@ -30,7 +30,7 @@ class Todo_app:
         self.tabs.add(self.timer_tab, text="Timer")
         self.tabs.pack(expand=True, fill="both")
         self.tabs.bind("<<NotebookTabChanged>>", self.calc_percent)
-        
+
         # Intitalising clam style
         self.style = ttk.Style()
         self.style.theme_use('clam')
@@ -39,19 +39,20 @@ class Todo_app:
                              background='#18bc9c', 
                              troughcolor='#ecf0f1'
                             )
-        
+
         # Create the UI, splitted into three methods
         self.create_dashboard()
         self.create_task_manager()
         self.create_timer()
-        
+
         # Load in saved tasks and sort it in default order
         self.load(self.PATH)
         self.sort(event=None)
 
     def create_dashboard(self):
-        """This method create the dashboard, which track the percentages
-        of tasks completed"""
+        """Create the dashboard.
+        It contain the progress bar with percentage of tasks completed.
+        """
         ttk.Label(
                     self.dashboard_tab,
                     text="📊Dashboard",
@@ -74,13 +75,13 @@ class Todo_app:
     
     def create_task_manager(self):
         """This method create all of the widget inside the task manager."""
-        # Define values and list for combo-boxes and treeview:
+        # Define values for combo-boxes and treeview.
         SORT_CATE = [
                 'Name', 'Due Date', 'Highest Priority', 'Lowest Priority', 
                 'Completed', 'Incomplete'
                     ]
-        DAYS = [f"{d:02d}" for d in range(1, 31+1)] # day 1-31.
-        MONTH = [f"{m:02d}" for m in range(1, 12+1)] # month 1-12.
+        DAYS = [f"{d:02d}" for d in range(1, 31+1)]  # day 1-31.
+        MONTH = [f"{m:02d}" for m in range(1, 12+1)]  # month 1-12.
         P_ORDER = ['Low', 'Medium', 'High']
         table_cols = ('Title', 'Due Date', 'Priority', 'State')
         today = dt.now()
@@ -93,7 +94,7 @@ class Todo_app:
         self.title_entry = ttk.Entry(top, width=30)
         self.title_entry.grid(row=0, column=1, padx=5, pady=5)
         
-        # Priority selector with a unique style ID
+        # Priority selector with a unique style ID.
         ttk.Label(top, text="Priority").grid(row=0, column=2, padx=5)
         self.priority_entry = ttk.Combobox(top, 
                                            values=P_ORDER,
@@ -105,37 +106,36 @@ class Todo_app:
         style_name_1 = f"Combo1_{id(self.priority_entry)}.TCombobox"
         self.priority_entry.configure(style=style_name_1)
         
-        # Due Date entries so the user can choose date in dd-MM-YYYY.
+        # Due Date entries allow the user to pick dates in dd-MM-YYYY.
         ttk.Label(top, text="Due Date:").grid(row=1, column=0, padx=5)
         due_date_frame = ttk.Frame(top)
         due_date_frame.grid(row=1, column=1, padx=5, pady=5)
 
-        # Date entry 
+        # Date entry, default value set as today's date.
         ttk.Label(due_date_frame, text="DD:").pack(side="left", padx=5)
         self.date_entry = ttk.Combobox(due_date_frame, 
-                                       values= DAYS,
-                                       width= 3)
+                                       values=DAYS,
+                                       width=3)
         self.date_entry.pack(side="left", padx=5, pady=5)
         self.date_entry.set(today.strftime("%d"))
         self.date_entry.bind("<<ComboboxSelected>>", self.remove_highlight)
         
-        # Month Entry
+        # Month Entry, default value set as current month.
         ttk.Label(due_date_frame, text="MM:").pack(side="left", padx=5)
         self.month_entry = ttk.Combobox(due_date_frame, 
                                        values=MONTH,
-                                       width= 3)
+                                       width=3)
         self.month_entry.pack(side="left", padx=5, pady=5)
         self.month_entry.set(today.strftime("%m"))
         self.month_entry.bind("<<ComboboxSelected>>", self.remove_highlight)
         
-        # Year entry
+        # Year entry, default value set as current year.
         ttk.Label(due_date_frame, text="YYYY:").pack(side="left", padx=5)
         self.year_entry = ttk.Entry(due_date_frame,
                                     width=6)
         self.year_entry.pack(side="left", padx=5, pady=5)
         self.year_entry.insert(0, today.strftime("%Y"))
 
-        # add button
         self.add_bt = ttk.Button(top, text="✅Add Task", command=self.add)
         self.add_bt.grid(row=1, column=3, padx=5, pady=5)
         
@@ -143,14 +143,14 @@ class Todo_app:
         button_bar = ttk.Frame(self.todo_tab)
         button_bar.pack(fill="x", padx=10, pady=5)
         
-        delete_bt = ttk.Button(button_bar, text="✖️Delete"
-                               ,command=self.remove
-                               )
+        delete_bt = ttk.Button(button_bar, text="✖️Delete",
+                               command=self.remove
+                              )
         delete_bt.pack(side="left", padx=10, pady=5)
 
         delete_all_bt = tk.Button(button_bar, text="⚠Delete All",
-                                   command=self.clear_all
-                                   )
+                                  command=self.clear_all
+                                 )
         delete_all_bt.pack(side="right", padx=10, pady=5)
         
         # Sorting method
@@ -189,7 +189,9 @@ class Todo_app:
         self.table.tag_configure("Overdue", background="red")
     
     def create_timer(self):
-        """Timer, which help user get tasks done"""
+        """Create timer tab.
+        Help the user focus on completing their tasks.
+        """
         # Defining timing varibles:
         FONT = ("Segoe UI", 60, "bold")
         self.hour=tk.StringVar(value="00")
@@ -249,8 +251,11 @@ class Todo_app:
         self.status_label.place(anchor="center", x=450, y=400)
 
     def refresh(self):
-        """This method updates the table rows by removing everything
-        then reinsert items from the list.""" 
+        """Updates the table and CSV file.
+        The method remove everything in table,
+        and reinstate them from the updated tasks list.
+        Write the CSV file with values in the tasks list.
+        """ 
         current_date = dt.now().date()
 
         # Update table
@@ -258,10 +263,9 @@ class Todo_app:
         for row in rows:
             self.table.delete(row)
         for i in range(len(self.tasks)):
-            # Get each task from the big list and insert the value to the table
             task = self.tasks[i]
             value=(task['title'], task['due'], task['priority'], task['state'])
-            # Convert due_date to datetime-type object
+            # Convert due_date to datetime-type object.
             due_date = dt.strptime(task['due'], "%d-%m-%Y").date() 
             if task['state'] == "✅":
                 tag='Done'
@@ -289,10 +293,9 @@ class Todo_app:
                       )
                 csv_writer.writerow(val)
 
-    def calc_percent(self, event = None):
-        """The method make sure the cursor isn't automatically
-        highlight entry box and calculate percentage of tasks completed"""
-        event.widget.focus_set()
+    def calc_percent(self, event=None):
+        """Calculate the percentage of completed against incompleted tasks."""
+        event.widget.focus_set()  # Remove highlight when switching tabs.
         dashboard = '.!notebook.!frame'
         completed = 0
         incompleted = 0
@@ -316,9 +319,10 @@ class Todo_app:
                 self.progress['value'] = completed_percent
     
     def add(self):
-        """The method get the title, due date
-        then validate them. It is added to the list before
-        being added to the table."""
+        """Gather values and add tasks to tasks list.
+        Method get title, due date and priority, validate them and
+        add them to the tasks list.
+        """
         title = self.title_entry.get()
         priority = self.priority_entry.get()
         title.strip()
@@ -347,15 +351,15 @@ class Todo_app:
                                                   )
             }
 
-            # Find the first True key, if any
+            # Check for error by finding what makes if-statement true, if any.
             if error := validator.get(True):
                 return mb.showerror(*error)
 
         except ValueError as e:
-            # Return incorrect datetime format
+            # Return incorrect datetime format.
             return mb.showerror("Something went wrong", str(e))
         
-        # Append task
+        # Add it to the tasks list.
         self.tasks.append(
             {
             "title":    title,
@@ -365,36 +369,37 @@ class Todo_app:
             }
         )
         
-        self.refresh()
-        # Clear Title
-        self.title_entry.delete(0, tk.END) 
+        self.refresh()  # Refresh table and CSV file.
+        self.title_entry.delete(0, tk.END)  # Clear title.
 
     def remove(self):
-        """This method get the ID from the selected row in the table. 
-        Then it compare the ID to tasks and remove matches task"""
+        """Remove selected task from tasks list.
+        The method get the ID of the selected tasks.
+        Ask for confirmation if the user is deleting more than 3 tasks
+        then remove it from the table
+        """
         selected_task = self.table.selection()
         no_selected = len(self.table.selection())
         
-        # Warning if user delete more than 3 tasks simultaneously 
+        # Ask for confirmation if user delete more than 3 tasks simultaneously 
         if no_selected >= 3:
             message = ("You are deleting 3 tasks or more, "
                         "Are you sure you want to proceed?")
             if not mb.askyesno("Warning", message):
                 return
         
-        # Delete tasks logic
+        # Delete tasks.
         if no_selected > 0:
             for item in selected_task:
                     for task in self.tasks:
                         if task.get("id") == item:
                             self.tasks.remove(task)
-            self.refresh()
+            self.refresh() 
         
         
 
     def clear_all(self):
-        """The Method ask a confirmation before deleting everything 
-        in tasks list"""
+        """Remove everything from tasks list and refresh."""
         if mb.askyesno("Warning, this action cannot be undo!",
                         "Are you sure you want to DELETE ALL existing tasks?"):
             self.tasks.clear()
@@ -403,8 +408,9 @@ class Todo_app:
             return
         
     def remove_highlight(self, event):
-        """This method change the field colour of the combo boxes
-        and remove it's highlight"""
+        """Remove Hightlight off combo box.
+        Map styling colour to combo box (Currently only used for priority_entry)
+        """
         event.widget.selection_clear()
         current = event.widget.get()
         style_name = event.widget.cget("style")
@@ -424,8 +430,11 @@ class Todo_app:
     def load(self, Path=None):
         """This method open the path then take the information from the provided
         file path.
-        If there is no Path(default none) provided, the method ask for one.
-        If there is path provided, the method write it into the files"""
+
+        If there is no path(default none) provided, the method ask for one.
+
+        If there is path provided, the method write it into the files
+        """
         if Path is None:
             Path = filedialog.askopenfilename(filetypes=[("CSV file","*.csv")]
                                              )
@@ -455,8 +464,7 @@ class Todo_app:
             return
             
     def export(self):
-        """This method ask the user for a location to save the file
-        then it copy the values from the todo_file and save it there."""
+        """Export a CSV file to a location of user's choice."""
         new_path = filedialog.asksaveasfilename(
                                             defaultextension=".csv",
                                             filetypes=[("CSV files", "*.csv")],
@@ -478,8 +486,8 @@ class Todo_app:
                     csv_writer.writerow(values)
 
     def sort(self, event):
-        """The method get the category from the sort bar
-        then use sorted() to organise the list of tasks"""
+        """Sort tasks based on category.
+        Sort the task with the dictionary rules."""
         p_order = ['High', 'Medium', 'Low']
         sorting_rules = {
             # Category: (sorting key, true/false to reverses order)
@@ -506,12 +514,12 @@ class Todo_app:
         self.refresh()
 
     def mark_done(self, event):
-        """This method get the ID. Then check go through the selected 
-        task and mark it done or undone depend on the state"""
+        """Mark the task as completed.
+        Find the task's ID and then give it the tick."""
         try:
             item = self.table.selection()[0]
         except IndexError:
-            # prevent program from returning data of header column
+            # prevent program from returning data of header column.
             return
         else:
             for task in self.tasks:
@@ -520,49 +528,50 @@ class Todo_app:
         self.refresh()    
 
     def update_timer(self):
-        """This method update the timer every 1 second"""
+        """Update the timer every 1 second."""
         if not self.timer_running:
             return
 
         self.Duration -= 1
 
         if self.Duration < 0:
-            # end timer when duration is zero
+            # end timer when duration is zero.
             self.end_timer()
             mb.showinfo("Countdown Timer", "Time is up!")
             return
 
-        # Calculate remaining time
+        # Calculate remaining time.
         new_H, new_M, new_S = self.time_calc(self.Duration)
         saved_H, saved_M, saved_S = self.time_calc(self.last_saved_t)
 
-        # Update GUI
+        # Update GUI.
         self.set_time(f"{new_H:02d}", f"{new_M:02d}", f"{new_S:02d}")
         saved_T = f"Saved time: {saved_H:02d}:{saved_M:02d}:{saved_S:02d}"
         self.status_label['text'] = saved_T
         
-        # Schedule next update
+        # Schedule next update(1000ms or 1 second).
         self.root.after(1000, self.update_timer)
         
 
     def pause(self):
-        """The method toggles between resume and pausing.
-        Handles starting, pausing, and resuming."""
-        # Case 1: Timer is running, Pause it
+        """Start, pause or continue the timer based on it's current state."""
+        # Case 1: Timer is running, Pause it.
         if self.timer_running:
             self.timer_running = False
             self.pause_bt['text'] = "▶"
             return
 
-        # Case 2: Timer is finished, start a new timer
+        # Case 2: Timer is finished, start a new timer.
         if self.Duration == 0:
             H = self.hour.get()
             M = self.minute.get()
             S = self.second.get()
-            # Validate length of timer input to 2 character
-            if len(str(H)) > 2 or len(str(M)) > 2 or len(str(S)) > 2:
+            input_length = (len(str(H)), len(str(M)), len(str(S)))
+            print(input_length)
+            # Validate length of timer input to 2 character.
+            if max(input_length) > 2:
                 timer_mess = "Error, you cannot enter more than two characters"
-                self.set_time() # reset to 00:00:00
+                self.set_time() # reset to 00:00:00.
                 mb.showerror("Input Error", timer_mess)
                 return
             try:
@@ -579,7 +588,7 @@ class Todo_app:
                 mb.showwarning("Warning", "Please set a time greater than 0")
                 return
 
-        # Case 3: Resuming a paused timer OR successfully started a new one
+        # Case 3: Resuming a paused timer OR successfully started a new one.
         self.timer_running = True
         self.disable_entries()
         self.pause_bt['text'] = "⏸"
@@ -602,22 +611,24 @@ class Todo_app:
         self.pause_bt['text'] = "▶"
     
     def disable_entries(self):
-        """Disable the time entries so the user 
-        WILL NOT be able to input the time"""
+        """Prevent user from inputting time."""
         self.secondEntry['state'] = "readonly"
         self.minuteEntry['state'] = "readonly"
         self.hourEntry['state'] = "readonly"
     
     def enable_entries(self):
-        """Enable the time entries so the user 
-        WILL be able to input time"""
+        """Enable user to input time."""
         self.secondEntry['state'] = "normal"
         self.minuteEntry['state'] = "normal"
         self.hourEntry['state'] = "normal"
     
-    def time_calc(self, total_t = int):
-        """The method calculate the amount of hour, minute, second to display
-        using floor division and modulus."""
+    def time_calc(self, total_t=int):
+        """Calculate the amount of hour, minute, second to display.
+
+        Arg: take in the total duration
+        Calculate hour, minute and second using floor div and mod
+        
+        Return new hour, minute and second."""
         new_H = total_t // 3600
         new_M = (total_t // 60) % 60
         new_S = total_t % 60
@@ -631,7 +642,7 @@ class Todo_app:
     
 if __name__ == "__main__":
     root = tk.Tk()
-    app = Todo_app(root)
+    app = TodoApp(root)
     root.mainloop()
 
 
