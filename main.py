@@ -15,7 +15,7 @@ class TodoApp:
         self.root.geometry("900x550")
         self.root.resizable(width=False, height=False)
 
-        # Create the 3 tabs
+        # Create the 3 tabs.
         self.tabs = ttk.Notebook(root)
         self.dashboard_tab = ttk.Frame(self.tabs)
         self.todo_tab = ttk.Frame(self.tabs)
@@ -24,7 +24,7 @@ class TodoApp:
         self.tasks = []
         self.PATH = "todo_file.csv"
         
-        # Give a task name and pack it
+        # Give a task name and pack it.
         self.tabs.add(self.dashboard_tab, text="Dashboard")
         self.tabs.add(self.todo_tab, text="To-Do List")
         self.tabs.add(self.timer_tab, text="Timer")
@@ -40,12 +40,12 @@ class TodoApp:
                              troughcolor='#ecf0f1'
                             )
 
-        # Create the UI, splitted into three methods
+        # Create the UI, splitted into three methods.
         self.create_dashboard()
         self.create_task_manager()
         self.create_timer()
 
-        # Load in saved tasks and sort it in default order
+        # Load in saved tasks and sort it in default order.
         self.load(self.PATH)
         self.sort(event=None)
 
@@ -320,7 +320,8 @@ class TodoApp:
     
     def add(self):
         """Gather values and add tasks to tasks list.
-        Method get title, due date and priority, validate them and
+
+        Method get title, due date and priority, validate them and,
         add them to the tasks list.
         """
         title = self.title_entry.get()
@@ -334,7 +335,7 @@ class TodoApp:
         today = dt.now().date()
         max_due_date = today + timedelta(days=MAX_FUTURE_DATE)
 
-        # Validate datetime and title
+        # Validate datetime and title.
         try:
             parsed_due_date = dt.strptime(due_date, "%d-%m-%Y").date() 
 
@@ -374,6 +375,7 @@ class TodoApp:
 
     def remove(self):
         """Remove selected task from tasks list.
+
         The method get the ID of the selected tasks.
         Ask for confirmation if the user is deleting more than 3 tasks
         then remove it from the table
@@ -381,7 +383,7 @@ class TodoApp:
         selected_task = self.table.selection()
         no_selected = len(self.table.selection())
         
-        # Ask for confirmation if user delete more than 3 tasks simultaneously 
+        # Ask for confirmation if user delete more than 3 tasks simultaneously.
         if no_selected >= 3:
             message = ("You are deleting 3 tasks or more, "
                         "Are you sure you want to proceed?")
@@ -428,12 +430,14 @@ class TodoApp:
                     )
 
     def load(self, Path=None):
-        """This method open the path then take the information from the provided
-        file path.
+        """Open the file provided and copy the data into the tasks list.
 
-        If there is no path(default none) provided, the method ask for one.
+        Args:
+            File path. If it's not provided then the user is asked for one.
 
-        If there is path provided, the method write it into the files
+        Return:
+            Open the file , then take it's information and write it into the
+            tasks list. Display messagebox if there's an error
         """
         if Path is None:
             Path = filedialog.askopenfilename(filetypes=[("CSV file","*.csv")]
@@ -625,10 +629,12 @@ class TodoApp:
     def time_calc(self, total_t=int):
         """Calculate the amount of hour, minute, second to display.
 
-        Arg: take in the total duration
-        Calculate hour, minute and second using floor div and mod
+        Arg: 
+            Integer number of seconds.
         
-        Return new hour, minute and second."""
+        Return:
+            hour, minute, and second.
+        """
         new_H = total_t // 3600
         new_M = (total_t // 60) % 60
         new_S = total_t % 60
@@ -644,6 +650,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = TodoApp(root)
     root.mainloop()
-
-
-
