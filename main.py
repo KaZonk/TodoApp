@@ -246,7 +246,7 @@ class TodoApp:
 
         self.status_label = tk.Label(
                                 self.timer_tab, 
-                                text=("Saved time for restart:00:00:00")
+                                text=("Timer not in progress")
                                 )
         self.status_label.place(anchor="center", x=450, y=400)
 
@@ -545,13 +545,13 @@ class TodoApp:
             return
 
         # Calculate remaining time.
-        new_H, new_M, new_S = self.time_calc(self.Duration)
-        saved_H, saved_M, saved_S = self.time_calc(self.last_saved_t)
+        new_hour, new_min, new_sec = self.time_calc(self.Duration)
 
         # Update GUI.
-        self.set_time(f"{new_H:02d}", f"{new_M:02d}", f"{new_S:02d}")
-        saved_T = f"Saved time: {saved_H:02d}:{saved_M:02d}:{saved_S:02d}"
-        self.status_label['text'] = saved_T
+        self.set_time(f"{new_hour:02d}", f"{new_min:02d}", f"{new_sec:02d}")
+        in_progress_message = "Timer in progress, wait for it to finish " \
+                            "OR skip to be able to input new timing."
+        self.status_label['text'] = in_progress_message
         
         # Schedule next update(1000ms or 1 second).
         self.root.after(1000, self.update_timer)
@@ -571,7 +571,6 @@ class TodoApp:
             M = self.minute.get()
             S = self.second.get()
             input_length = (len(str(H)), len(str(M)), len(str(S)))
-            print(input_length)
             # Validate length of timer input to 2 character.
             if max(input_length) > 2:
                 timer_mess = "Error, you cannot enter more than two characters"
@@ -605,13 +604,14 @@ class TodoApp:
         self.set_time("00", "00", "00")
         self.enable_entries()
         self.pause_bt['text'] = "▶"
+        self.status_label['text'] = "Timer not in progress"
 
     def restart(self):
         """Resets the timer back to the original starting time."""
         self.timer_running = False
         self.Duration = self.last_saved_t
-        new_H, new_M, new_S = self.time_calc(self.Duration)
-        self.set_time(f"{new_H:02d}", f"{new_M:02d}", f"{new_S:02d}")
+        new_h, new_m, new_s = self.time_calc(self.Duration)
+        self.set_time(f"{new_h:02d}", f"{new_m:02d}", f"{new_s:02d}")
         self.pause_bt['text'] = "▶"
     
     def disable_entries(self):
@@ -635,10 +635,10 @@ class TodoApp:
         Return:
             hour, minute, and second.
         """
-        new_H = total_t // 3600
-        new_M = (total_t // 60) % 60
-        new_S = total_t % 60
-        return new_H, new_M, new_S
+        new_hour = total_t // 3600
+        new_minute = (total_t // 60) % 60
+        new_second = total_t % 60
+        return new_hour, new_minute, new_second 
 
     def set_time(self, hour="00", minute="00", second="00"):
         """This method set the time in the stringVar, default is 00"""
