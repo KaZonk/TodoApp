@@ -270,11 +270,11 @@ class TodoApp:
             # Convert due_date to datetime-type object.
             due_date = dt.strptime(task['due'], "%d-%m-%Y").date()
             if task['state'] == "✅":
-                tag='Done'
+                tag = 'Done'
             elif due_date < current_date:
-                tag='Overdue'
+                tag = 'Overdue'
             else:
-                tag=task['priority']
+                tag = task['priority']
             row_id = self.table.insert(
                 "", "end",
                 values=value,
@@ -439,8 +439,7 @@ class TodoApp:
             tasks list. Display messagebox if there's an error
         """
         if Path is None:
-            Path = filedialog.askopenfilename(filetypes=[("CSV file","*.csv")]
-                                             )
+            Path = filedialog.askopenfilename(filetypes=[("CSV file", "*.csv")])
 
         exist_id = {task.get('id') for task in self.tasks}
         try:
@@ -570,7 +569,7 @@ class TodoApp:
             # Validate length of timer input to 2 character.
             if max(input_length) > 2:
                 timer_mess = "Error, you cannot enter more than two characters"
-                self.set_time() # reset to 00:00:00.
+                self.set_time()  # reset to 00:00:00.
                 mb.showerror("Input Error", timer_mess)
                 return
             try:
