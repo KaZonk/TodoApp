@@ -196,6 +196,7 @@ class TodoApp:
         # Defining timing varibles:
         FONT = ("Segoe UI", 60, "bold")
         self.hour = tk.StringVar(value="00")
+        self.minute = tk.StringVar(value="00")
         self.second = tk.StringVar(value="00")
         self.timer_running = False
         self.Duration = 0
