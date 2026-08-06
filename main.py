@@ -335,6 +335,7 @@ class TodoApp:
         Y = self.year_entry.get()
         due_date = f"{d}-{M}-{Y}"
         today = dt.now().date()
+        current_sort = self.sort_bar.get()
         max_due_date = today + timedelta(days=MAX_FUTURE_DATE)
 
         # Validate datetime and title.
@@ -374,6 +375,7 @@ class TodoApp:
 
         self.refresh()  # Refresh table and CSV file.
         self.title_entry.delete(0, tk.END)  # Clear title.
+        self.sort(event=None)
 
     def remove(self):
         """Remove selected task from tasks list.
@@ -567,12 +569,21 @@ class TodoApp:
             M = self.minute.get()
             S = self.second.get()
             input_length = (len(str(H)), len(str(M)), len(str(S)))
-            # Validate length of timer input to 2 character.
-            if max(input_length) > 2:
-                timer_mess = "Error, you cannot enter more than two characters"
+            input_val = (int(H), int(M), int(S))
+
+            validator = {
+                (max(input_length) > 2): ("Error", "Input cannot enter more "
+                                                   "than two characters"
+                                         ),
+                (max(input_val) > 60): ("Error", 
+                                        "Timer value cannot exceeed 60"
+                                       )
+            }
+
+            # Check for error by finding what makes if-statement true, if any.
+            if error := validator.get(True):
                 self.set_time()  # reset to 00:00:00.
-                mb.showerror("Input Error", timer_mess)
-                return
+                return mb.showerror(*error)
             try:
                 self.Duration = (3600 * int(H)
                                 + 60 * int(M)
