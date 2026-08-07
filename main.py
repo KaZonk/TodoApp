@@ -570,23 +570,24 @@ class TodoApp:
             H = self.hour.get()
             M = self.minute.get()
             S = self.second.get()
-            input_length = (len(str(H)), len(str(M)), len(str(S)))
-            input_val = (int(H), int(M), int(S))
 
-            validator = {
-                (max(input_length) > 2): ("Error", "Input cannot enter more "
-                                                   "than two characters"
-                                         ),
-                (max(input_val) > 60): ("Error", 
-                                        "Timer value cannot exceeed 60"
-                                       )
-            }
-
-            # Check for error by finding what makes if-statement true, if any.
-            if error := validator.get(True):
-                self.set_time()  # reset to 00:00:00.
-                return mb.showerror(*error)
             try:
+                input_length = (len(str(H)), len(str(M)), len(str(S)))
+                input_val = (int(H), int(M), int(S))
+
+                validator = {
+                    (max(input_length) > 2): ("Error", "Input cannot enter "
+                                                    "more than two characters"
+                                             ),
+                    (max(input_val) > 60): ("Error", 
+                                            "Timer value cannot exceeed 60"
+                                           )
+                }
+
+                # Check for error by finding what makes if-statement true, if any.
+                if error := validator.get(True):
+                    self.set_time()  # reset to 00:00:00.
+                    return mb.showerror(*error)
                 self.Duration = (3600 * int(H)
                                 + 60 * int(M)
                                 + int(S)
