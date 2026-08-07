@@ -115,6 +115,7 @@ class TodoApp:
         ttk.Label(due_date_frame, text="DD:").pack(side="left", padx=5)
         self.date_entry = ttk.Combobox(due_date_frame,
                                        values=DAYS,
+                                       state="readonly",
                                        width=3)
         self.date_entry.pack(side="left", padx=5, pady=5)
         self.date_entry.set(today.strftime("%d"))
@@ -124,6 +125,7 @@ class TodoApp:
         ttk.Label(due_date_frame, text="MM:").pack(side="left", padx=5)
         self.month_entry = ttk.Combobox(due_date_frame,
                                         values=MONTH,
+                                        state="readonly",
                                         width=3
                                        )
         self.month_entry.pack(side="left", padx=5, pady=5)
