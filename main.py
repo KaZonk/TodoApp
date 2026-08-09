@@ -584,7 +584,7 @@ class TodoApp:
                                            )
                 }
 
-                # Check for error by finding what makes if-statement true, if any.
+                # Check for error by finding what makes if-statement true.
                 if error := validator.get(True):
                     self.set_time()  # reset to 00:00:00.
                     return mb.showerror(*error)
