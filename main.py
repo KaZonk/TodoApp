@@ -464,7 +464,9 @@ class TodoApp:
                 self.refresh()
         except (TypeError, FileNotFoundError, KeyError) as e:
             mb.showerror("Error",
-                         f"Error: Could not open file '{Path}'. ({e})"
+                         f"Error: Could not open file '{Path}'. Due to {e}. \n"
+                           "Please check the file's formats and "
+                           "make sure it matches with the current CSV file"
                         )
             return
 
@@ -538,6 +540,7 @@ class TodoApp:
             return
 
         self.Duration -= 1
+
 
         if self.Duration < 0:
             # end timer when duration is zero.
