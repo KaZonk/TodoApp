@@ -445,8 +445,10 @@ class TodoApp:
         """
         if Path is None:
             Path = filedialog.askopenfilename(filetypes=[("CSV file", "*.csv")])
+            return
 
         exist_id = {task.get('id') for task in self.tasks}
+
         try:
             with open(Path, mode="r", encoding='utf-8') as f:
                 csv_writer = csv.DictReader(f)
@@ -577,6 +579,10 @@ class TodoApp:
             try:
                 input_length = (len(str(H)), len(str(M)), len(str(S)))
                 input_val = (int(H), int(M), int(S))
+                self.Duration = (3600 * int(H)
+                                + 60 * int(M)
+                                + int(S)
+                                )
 
                 validator = {
                     (max(input_length) > 2): ("Error", "Input cannot enter "
@@ -584,24 +590,22 @@ class TodoApp:
                                              ),
                     (max(input_val) > 60): ("Error", 
                                             "Timer value cannot exceeed 60"
-                                           )
+                                           ),
+                    (self.Duration <= 0): ("Warning", 
+                                            "Please set a time greater than 0")
                 }
 
                 # Check for error by finding what makes if-statement true.
                 if error := validator.get(True):
                     self.set_time()  # reset to 00:00:00.
+                    self.Duration = 0
                     return mb.showerror(*error)
-                self.Duration = (3600 * int(H)
-                                + 60 * int(M)
-                                + int(S)
-                                )
+                                
                 self.last_saved_t = self.Duration
             except ValueError:
                 mb.showerror("Error", "Please enter valid numbers")
-                return
-
-            if self.Duration <= 0:
-                mb.showwarning("Warning", "Please set a time greater than 0")
+                self.set_time()
+                self.Duration = 0
                 return
 
         # Case 3: Resuming a paused timer OR successfully started a new one.

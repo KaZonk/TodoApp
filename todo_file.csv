@@ -1,1 +1,4 @@
 due,title,id,priority,state
+17-08-2026,high,I004,High,✅
+17-08-2026,run,I005,Medium,✅
+17-08-2026,walk,I006,Low,☐
