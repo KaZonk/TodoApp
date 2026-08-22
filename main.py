@@ -1,4 +1,12 @@
-"""This is a to-do program to let student keep track of their task."""
+"""A to-do app program using Tkinter and the CSV library.
+
+   Split into three tabs: Dashboard, Manager and Timer
+   Dashboard displays the percentage of completed tasks
+   The task manager allows the user to add, remove or mark task done
+   The timer is used to let the user focus on getting things done
+   
+   Thank you to my friends and teacher to help me with the program
+    """
 
 # Libraries:
 import tkinter as tk
@@ -26,7 +34,7 @@ class TodoApp:
 
         # Give a task name and pack it.
         self.tabs.add(self.dashboard_tab, text="Dashboard")
-        self.tabs.add(self.todo_tab, text="To-Do List")
+        self.tabs.add(self.todo_tab, text="Tasks Manager")
         self.tabs.add(self.timer_tab, text="Timer")
         self.tabs.pack(expand=True, fill="both")
         self.tabs.bind("<<NotebookTabChanged>>", self.calc_percent)
